@@ -1,0 +1,608 @@
+\chapter{プログラム構造}
+\label{programchapter}
+
+\section{プログラム}
+
+Scheme プログラムは一つ以上のインポート宣言に続く式および定義の列からなる。
+インポート宣言は，プログラムやライブラリが依存するライブラリを指定する。
+ライブラリによってエクスポートされた識別子のサブセットは，プログラムで使用可能になる。
+式は \ref{expressionchapter} 章で記述している。
+定義は，変数定義，構文定義，またはレコード型の定義のいずれかであり，すべて本章で説明している。
+これらは式が許可されているコンテキスト，
+特に \hyper{プログラム} の最も外側のレベルおよび \hyper{本体} の先頭では，
+全部ではないが，一部で有効である。
+\mainindex{definition}
+
+プログラムの最も外側のレベルでは， {\tt(begin \hyperi{式または定義} \dotsfoo)} は，
+\ide{begin} の式および定義からなる列と等価である。
+同様に， \hyper{本体} では， {\tt(begin \hyperi{定義} \dotsfoo)} は，
+列 \hyperi{定義} \dotsfoo と等価である。
+マクロは，このような {\cf begin} の形式に展開することができる。
+正式な定義については，\ref{sequencing}を参照せよ。
+
+インポート宣言および定義は，グローバル環境で束縛の作成を起こすか，
+既存のグローバル束縛の値を変更させる。
+プログラムの初期環境は空なので，少なくとも一つのインポート宣言が
+初期束縛を導入するために必要とされる。
+
+いくつかの実装形態では，
+実行中の Scheme システム内に対話的に入力することができるが，
+プログラムとライブラリは一般的にはファイルに格納される。
+他のパラダイムも可能である。
+ファイル内のライブラリを保存する実装は，
+ライブラリの名前からファイルシステム内の場所へのマッピングを
+ドキュメント化すべきである。
+
+\section{インポート宣言}
+\mainschindex{import}
+
+インポート宣言は次の形式をとる:
+\begin{scheme}
+(import \hyper{インポート集合} \dotsfoo)
+\end{scheme}
+
+インポート宣言は，ライブラリによってエクスポートされた識別子をインポートする方法を提供する。
+各 \hyper{インポート集合} はライブラリからの束縛の集合を指定し，
+おそらくインポートされた束縛のローカル名を指定する。
+それは，次のいずれかの形式をとる:
+
+\begin{itemize}
+\item {\tt\hyper{ライブラリ名}}
+\item {\tt(only \hyper{インポート集合} \hyper{識別子} \dotsfoo)}
+\item {\tt(except \hyper{インポート集合} \hyper{識別子} \dotsfoo)}
+\item {\tt(prefix \hyper{インポート集合} \hyper{識別子})}
+\item {\tt(rename \hyper{インポート集合}\\
+{\obeyspaces%
+\hspace*{4em}(\hyperi{識別子} \hyperii{識別子}) \dotsfoo)}}
+\end{itemize}
+
+最初の形式では，指定されたライブラリのエクスポート句内の識別子のすべてが同じ名前で
+(あるいは，\ide{rename} でエクスポートされる場合はエクスポートされた名前で)
+インポートされる。
+追加の \hyper{インポート集合} 形式は，次のようにこの集合を変更する:
+
+\begin{itemize}
+
+\item \ide{only} は，記載された識別子のみを含む，
+  与えられた \hyper{インポート集合} の部分集合を生成する(任意の名前変更後)。
+  任意のリストされた識別子が，オリジナルの集合に見つからない場合はエラーである。
+
+\item \ide{except} は，記載された識別子を除いた，
+  与えられた \hyper{インポート集合} の部分集合を生成する(任意の名前変更後)。
+  任意のリストされた識別子が，オリジナルの集合に見つからない場合はエラーである。
+
+\item \ide{rename} は，\hyperi{識別子} のインスタンスを \hyperii{識別子} に置き換えて，
+  与えられた \hyper{インポート集合} を変更する。
+  任意のリストされた \hyperi{識別子} が，オリジナルの集合に見つからない場合はエラーである。
+
+\item \ide{prefix} は，
+  指定された \hyper{識別子} をそれぞれに接頭辞を付けて，
+  与えられた \hyper{インポート集合} のすべての識別子を自動的に名前変更する。
+
+\end{itemize}
+
+プログラムやライブラリの宣言では，
+異なる束縛で同じ識別子を複数回インポートすること，
+インポートされた束縛を再定義したり定義もしくは{\cf set!}で変異させること，
+インポートされる前に識別子を参照することはエラーである。
+しかし，REPLは，これらの動作を許可すべきである。
+
+\section{変数定義}
+\label{defines}
+\mainindex{variable definition}
+
+変数定義は一つ以上の識別子を束縛し，それらの各々の初期値を指定する。
+変数定義のもっとも単純な種類は以下の形式の一つをとる。\mainschindex{define}
+
+\begin{itemize}
+
+\item{\tt(define \hyper{変数} \hyper{式})}
+
+\item{\tt(define (\hyper{変数} \hyper{仮引数部}) \hyper{本体})}
+
+\hyper{仮引数部} は，０個以上の変数からなる列か，または１個以上の
+変数からなる列に対しスペースで区切られたピリオドともう１個の変数を続けたもの
+である (ラムダ式の場合と同様である)。
+この形式は次と等価である。
+\begin{scheme}
+(define \hyper{変数}
+  (lambda (\hyper{仮引数部}) \hyper{本体}))\rm.%
+\end{scheme}
+
+\item{\tt(define (\hyper{変数} .\ \hyper{仮引数}) \hyper{本体})}
+
+\hyper{仮引数} は単一の変数である。
+この形式は次と等価である。
+\begin{scheme}
+(define \hyper{変数}
+  (lambda \hyper{仮引数} \hyper{本体}))\rm.%
+\end{scheme}
+
+\end{itemize}
+
+\subsection{トップレベル定義}
+
+プログラムの最も外側のレベルでは，定義
+\begin{scheme}
+(define \hyper{変数} \hyper{式})%
+\end{scheme}
+は，もし \hyper{変数} が一つの非構文値に束縛されているならば，本質的に代入式
+\begin{scheme}
+(\ide{set!}\ \hyper{変数} \hyper{式})%
+\end{scheme}
+と同じ効果をもつ。
+しかし，もし \hyper{変数} が未束縛あるいは構文キーワードならば，
+この定義は代入を実行する前にまず \hyper{変数} を新しい場所に束縛する。
+しかるに {\cf set!}\ を未束縛\index{unbound}の変数に対して実行すると
+エラーになるだろう。
+
+\begin{scheme}
+(define add3
+  (lambda (x) (+ x 3)))
+(add3 3)                            \ev  6
+(define first car)
+(first '(1 2))                      \ev  1%
+\end{scheme}
+
+\subsection{内部定義}
+\label{internaldefines}
+
+定義は \hyper{本体} (つまり \ide{lambda},
+\ide{let}, \ide{let*}, \ide{letrec}, \ide{letrec*},
+\ide{let-values}, \ide{let*-values}, \ide{let-syntax}, \ide{letrec-syntax},
+\ide{parameterize}, \ide{guard}, \ide{case-lambda} の各式の本体，または
+適切な形式の定義の本体) の先頭に出現可能である。
+このような定義を，上述のグローバル定義に対抗して
+{\em 内部定義} ({\em internal definition}) \mainindex{internal definition}
+という。
+内部定義で定義される変数は \hyper{本体} にローカルである。
+つまり，\hyper{変数} は代入されるのではなく束縛されるのであり，
+その束縛の領域は \hyper{本体} 全体である。たとえば，
+
+\begin{scheme}
+(let ((x 5))
+  (define foo (lambda (y) (bar x y)))
+  (define bar (lambda (a b) (+ (* a b) a)))
+  (foo (+ x 3)))                \ev  45%
+\end{scheme}
+
+内部定義をもつ拡張された \hyper{本体} は常にそれと完全に等価な {\cf letrec*} 式に
+変換できる。たとえば，上の例の {\cf let} 式は次と等価である。
+
+\begin{scheme}
+(let ((x 5))
+  (letrec* ((foo (lambda (y) (bar x y)))
+            (bar (lambda (a b) (+ (* a b) a))))
+    (foo (+ x 3))))%
+\end{scheme}
+
+等価な {\cf letrec} 式がそうであるように，
+\hyper{本体} の中の内部定義のそれぞれの \hyper{式} は，
+対応する \hyper{変数} の値，または，\hyper{本体} 内でそれに続く定義の
+いずれかの変数への代入も参照もすることなしに評価不能で
+あればエラーである。
+
+同一の \hyper{本体} において複数回同じ識別子を定義することはエラーである。
+
+どこに内部定義が出現しようとも， {\tt(begin \hyperi{定義} \dotsfoo)} は，
+その \ide{begin} の本体をつくる定義からなる列と等価である。
+
+\subsection{複数の値の定義}
+
+別の定義の種類は {\cf define-values} で提供され，
+これは複数の値を返す単一の式から，複数の定義が作られる。
+これは {\cf define} が許可されているところで許可される。
+
+\begin{entry}{%
+\proto{define-values}{ \hyper{仮引数部} \hyper{式}}{\exprtype}}\nobreak
+
+\hyper{仮引数部} の集合に複数回変数が出現する場合はエラーである。
+
+\semantics
+\hyper{式} が評価され，
+\hyper{仮引数部} は，{\cf lambda} 式の \hyper{仮引数部} が
+手続き呼び出しの引数に照合しているのと同じ方法で，戻り値に束縛される。
+
+\begin{scheme}
+(define-values (x y) (integer-sqrt 17))
+(list x y) \ev (4 1)
+
+(let ()
+  (define-values (x y) (values 1 2))
+  (+ x y))     \ev 3%
+\end{scheme}
+
+\end{entry}
+
+\section{構文定義}
+
+\mainindex{syntax definition}
+構文定義はこの形式をとる。\mainschindex{define-syntax}
+
+{\tt(define-syntax \hyper{キーワード} \hyper{変換子仕様})}
+
+\hyper{キーワード} は識別子であり，
+\hyper{変換子仕様} は \ide{syntax-rules} のインスタンスである。
+変数定義と同様に，構文定義は最も外側のレベルに現れる，あるいは本体 (\ide{body}) 内にネストすることが可能である。
+
+{\cf define-syntax}が最も外側のレベルで出現した場合，
+グローバル構文環境は指定された変換子に \hyper{キーワード} を
+束縛することによって拡張されるが，
+\hyper{キーワード} のグローバル束縛の以前の展開はいずれも変更されない。
+それ以外の場合は，内部構文定義であり，それが定義されている本体に対してローカルである。
+構文キーワードに対応する定義の前にそれを使用することはエラーである。
+特に，内側の定義に先行した使用は，外側の定義を適用しない。
+
+\begin{scheme}
+(let ((x 1) (y 2))
+  (define-syntax swap!
+    (syntax-rules ()
+      ((swap! a b)
+       (let ((tmp a))
+         (set! a b)
+         (set! b tmp)))))
+  (swap! x y)
+  (list x y))                \ev (2 1)%
+\end{scheme}
+
+\todo{Shinn: This description is hideous.
+Cowan: But now less hideous than before.}
+
+定義を許可する任意の文脈においてマクロは定義や構文定義へと展開してもよい。
+しかし，定義自体の，または，内部定義の同じグループに属している先行するいずれかの定義の
+意味を決定するために，束縛が知っているべき識別子を定義することは，定義についてのエラーである。
+同様に，内部定義と，それが属する本体の式の境界を決定するために
+束縛が知っているべき識別子を定義することは，内部定義についてのエラーである。
+たとえば，下記はそれぞれエラーである。
+
+\begin{scheme}
+(define define 3)
+
+(begin (define begin list))
+
+(let-syntax
+    ((foo (syntax-rules ()
+            ((foo (proc args ...) body ...)
+             (define proc
+               (lambda (args ...)
+                 body ...))))))
+  (let ((x 3))
+    (foo (plus x y) (+ x y))
+    (define foo x)
+    (plus foo x)))%
+\end{scheme}
+
+\section{レコード型定義}
+\label{usertypes}
+
+レコード型定義 (\defining{record-type definitions}) は，レコード型 (\defining{record types}) と呼ばれる新しいデータ型を
+導入するために使用される。
+他の定義のように，最も外側のレベルまたは本体内に現れることができる。
+レコード型の値はレコード (\defining{records}) と呼ばれ，ゼロ個以上のフィールド (\defining{fields}) の集合体であり
+それぞれが単一の場所を保持している。
+述語，コンストラクタ，フィールドアクセサ，およびミューテータは各レコード型のために
+定義される。
+
+\begin{entry}{%
+\mainschindex{define-record-type}
+\pproto{(define-record-type \hyper{名前}}{構文}
+\hspace*{4em}{\tt \hyper{コンストラクタ} \hyper{述語} \hyper{フィールド} \dotsfoo})}
+
+\syntax
+\hyper{名前} と \hyper{述語} は識別子である。
+\hyper{コンストラクタ} は次の形式である。
+\begin{scheme}
+(\hyper{コンストラクタ名} \hyper{フィールド名} \dotsfoo)%
+\end{scheme}
+そして，各 \hyper{フィールド} は，次のいずれかの形式である。
+\begin{scheme}
+(\hyper{フィールド名} \hyper{アクセサ名})%
+\end{scheme}
+または
+\begin{scheme}
+(\hyper{フィールド名} \hyper{アクセサ名} \hyper{修飾子名})%
+\end{scheme}
+
+フィールド名として同じ識別子が複数回出現することはエラーである。
+また，同じ識別子が一度アクセサまたはミューテータの名前として複数回出現することもエラーである。
+
+{\cf define-record-type} コンストラクトは，生成的である。
+それぞれの使用は，Scheme の定義済みの型や他のレコード型を含む，
+すべての既存の型とは異なる新しいレコード型を，
+それが同じ名前または構造のレコード型であっても作成する。
+
+{\cf define-record-type} のインスタンスは以下の定義と等価である。
+
+\begin{itemize}
+
+\item \hyper{名前} は，レコード型自体の表現に束縛されている。
+  これは，実行時オブジェクトまたは純粋な構文表現であってもよい。
+  表現は，本報告書で利用されていないが，さらなる言語拡張による使用のために
+  レコード型を識別するための手段として機能する。
+
+\item \hyper{コンストラクタ名} は，
+  部分式 \texttt{(\hyper{コンストラクタ名} \dotsfoo)} における \hyper{フィールド名} の数と
+  同じ数の引数を取り，\hyper{名前} 型の新しいレコードを返す手続きに束縛されている。
+  名前が \hyper{コンストラクタ名} と記載されているフィールドは，初期値として対応する引数がある。
+  他のすべてのフィールドの初期値は未規定である。
+  フィールド名が \hyper{フィールド名} としてでなく \hyper{コンストラクタ} に現れることはエラーである。
+
+\item \hyper{述語} は，\hyper{コンストラクタ名} に束縛された手続きによって返される値が
+  与えられたときに \schtrue{} を返し，それ以外すべての場合 \schfalse{} を返す述語に束縛される。
+
+\item 各 \hyper{アクセサ名} は，\hyper{名前} 型のレコードをとり，対応するフィールドの現在値を返す
+  手続きに束縛されている。
+  アクセサに適切な型のレコードではない値を渡すことはエラーである。
+
+\item 各 \hyper{修飾子名} は，\hyper{名前} 型のレコードと，
+  対応するフィールドの新しい値になる値をとる手続きに束縛されている。
+  返される値は未規定である。
+  修飾子に適切な型のレコードではない第一引数を渡すことはエラーである。
+
+\end{itemize}
+
+たとえば，次のレコード型の定義
+
+\begin{scheme}
+(define-record-type <pare>
+  (kons x y)
+  pare?
+  (x kar set-kar!)
+  (y kdr))
+\end{scheme}
+
+は，{\cf kons} をコンストラクタとして，
+{\cf kar} と {\cf kdr} をアクセサとして，
+{\cf set-kar!} を修飾子として，
+{\cf pare?} を{\cf <pare>} のインスタンスの述語として
+定義している。
+
+\begin{scheme}
+  (pare? (kons 1 2))        \ev \schtrue
+  (pare? (cons 1 2))        \ev \schfalse
+  (kar (kons 1 2))          \ev 1
+  (kdr (kons 1 2))          \ev 2
+  (let ((k (kons 1 2)))
+    (set-kar! k 3)
+    (kar k))                \ev 3
+\end{scheme}
+
+\end{entry}
+
+
+\section{ライブラリ}
+\label{libraries}
+
+ライブラリは，
+プログラムの残りの部分を明示的に定義されたインタフェースを備えた
+Scheme プログラムを再利用可能な部分に組織する方法を提供する。
+本節ではライブラリの表記および構文を定義する。
+
+
+\subsection{ライブラリ構文}
+
+ライブラリ定義は以下の形式をとる。
+\mainschindex{define-library}
+
+\begin{scheme}
+(define-library \hyper{ライブラリ名}
+  \hyper{ライブラリ宣言} \dotsfoo)
+\end{scheme}
+
+\hyper{ライブラリ名} は，識別子と非負の整数をメンバにもつリストである。
+それは他のプログラムまたはライブラリからインポートするときに，
+ライブラリを一意に識別するために使用される。
+最初の識別子が {\cf scheme} であるライブラリは，
+本報告書および将来のバージョンで使用するために予約されている。
+最初の識別子が {\cf srfi} であるライブラリは，
+Scheme のための実装要求 (Scheme Requests for Implementation : SRFI) を
+実装するライブラリのために予約されている。
+ライブラリ名の識別子に，エスケープ展開後の任意の文字または制御文字
+{\cf | \backwhack{} ? * < " : > + [ ] /} を含めることは，
+エラーではないが非推奨である。
+
+\label{librarydeclarations}
+\hyper{ライブラリ宣言} は以下のいずれかである:
+
+\begin{itemize}
+
+\item{\tt(export \hyper{エクスポート仕様} \dotsfoo)}
+
+\item{\tt(import \hyper{インポート集合} \dotsfoo)}
+
+\item{\tt(begin \hyper{コマンドまたは定義} \dotsfoo)}
+
+\item{\tt(include \hyperi{ファイル名} \hyperii{ファイル名} \dotsfoo)}
+
+\item{\tt(include-ci \hyperi{ファイル名} \hyperii{ファイル名} \dotsfoo)}
+
+\item{\tt(include-library-declarations \hyperi{ファイル名} \hyperii{ファイル名} \dotsfoo)}
+
+\item{\tt(cond-expand \hyperi{ce節} \hyperii{ce節} \dotsfoo)}
+
+\end{itemize}
+
+\ide{export} 宣言は，
+他のライブラリまたはプログラムに見えるようにすることができる識別子のリストを指定する。
+\hyper{エクスポート仕様} は以下のいずれかの形式をとる。
+
+\begin{itemize}
+\item{\hyper{識別子}}
+\item{\tt{(rename \hyperi{識別子} \hyperii{識別子})}}
+\end{itemize}
+
+\hyper{エクスポート仕様} では，\hyper{識別子} は
+ライブラリで定義されているか，ライブラリにインポートされている単一の束縛を名付ける。
+ここで，エクスポートのための外部名は，ライブラリでの束縛の名前と同じである。
+\ide{rename} 仕様は，
+外部の名前として \hyperii{識別子} を使用して，
+ライブラリで定義されているか，ライブラリにインポートされており，
+各 {\tt(\hyperi{識別子} \hyperii{識別子})} ペアリングしている，
+\hyperi{識別子} で名付けられた束縛をエクスポートする。
+
+\ide{import} 宣言は，他のライブラリによってエクスポートされた識別子をインポートする方法を提供する。
+それはプログラムまたはREPLで使われるインポート宣言
+と同じ構文および意味を持つ (\ref{import} 節参照)。
+
+\ide{begin}, \ide{include}, および \ide{include-ci} 宣言は，
+ライブラリ本体を指定するのに使われる。
+それらは対応する式型と同じ構文および意味をもつ。
+この {\cf begin} の形式は，同じではないが，\ref{sequencing}節で定義された
+{\cf begin} の二つの型に似ている。
+
+\ide{include-library-declarations} 宣言は，
+ファイルの内容が現在のライブラリ定義に直接指定されることを除いて
+\ide{include} に似ている。
+これはたとえば，
+複数のライブラリ内の同じ \ide{export} 宣言を共有するのに
+ライブラリインタフェースの単純な形式として
+使うことができる。
+
+\ide{cond-expand} 宣言は，{\cf begin} で囲まれた式ではなく，
+継ぎ合わせライブラリ宣言に展開することを除いて，
+\ide{cond-expand} 式型と同じ構文および意味をもつ。
+
+\todo{Shinn: Perhaps make this a separate subsection describing a
+  library ``resolution'' phase which runs prior to library expansion.}
+
+ライブラリの可能な実装の一つを以下に示す。
+すべての \ide{cond-expand} ライブラリ宣言が展開された後，
+新しい環境がすべてのインポートされた束縛を含んでいるライブラリのために構築される。
+すべての \ide{begin}, \ide{include} および \ide{include-ci} ライブラリ宣言からの式は，
+そのライブラリに発生した順に，その環境で展開される。
+別の方法として，\ide{cond-expand} と \ide{import} 宣言は，
+インポートされた束縛が各 \ide{import} 宣言によってそれに追加されるような生育環境で，
+散在する他の宣言の処理と合わせて左から右へと順に処理されてもよい。
+
+ライブラリがロードされるとき，その式は記述順に実行される。
+ライブラリの定義がプログラムまたはライブラリ本体の展開された形式で参照される場合は，
+展開されたプログラムやライブラリ本体が評価される前にロードされなければならない。
+このルールは推移的に適用する。
+ライブラリが複数のプログラムやライブラリでインポートされる場合，それは追加時にロードされてもよい。
+
+同様に，ライブラリ {\cf (foo)} の展開中，
+ライブラリを展開するのに必要とされる別のライブラリ {\cf (bar)} から
+任意の構文キーワードがインポートされる場合，
+ライブラリ {\cf (bar)} は展開され，その構文定義は {\cf (foo)} の展開前に評価されればならない。
+
+ライブラリがロードされる回数に関係なく，
+ライブラリから束縛をインポートする各プログラムやライブラリは
+インポート宣言の現れる回数に関係なく，
+そのライブラリの単一のロードから行わなければならない。
+すなわち，{\cf (import (only (foo) a))} の後に続く {\cf (import (only (foo) b))}
+は， {\cf (import (only (foo) a b))} と同じ効果をもたらす。
+
+\subsection{ライブラリの例}
+以下の例は，プログラムがライブラリと比較的小さいメインプログラムに分割できる方法を示す\cite{life}。
+メインプログラムがREPLに入力された場合，基本ライブラリをインポートする必要はない。
+
+\begin{scheme}
+(define-library (example grid)
+  (export make rows cols ref each
+          (rename put! set!))
+  (import (scheme base))
+  (begin
+    ;; NxM のグリッドを作成する。
+    (define (make n m)
+      (let ((grid (make-vector n)))
+        (do ((i 0 (+ i 1)))
+            ((= i n) grid)
+          (let ((v (make-vector m \sharpfalse{})))
+            (vector-set! grid i v)))))
+    (define (rows grid)
+      (vector-length grid))
+    (define (cols grid)
+      (vector-length (vector-ref grid 0)))
+    ;; 範囲外ならば \sharpfalse{} を返す。
+    (define (ref grid n m)
+      (and (< -1 n (rows grid))
+           (< -1 m (cols grid))
+           (vector-ref (vector-ref grid n) m)))
+    (define (put! grid n m v)
+      (vector-set! (vector-ref grid n) m v))
+    (define (each grid proc)
+      (do ((j 0 (+ j 1)))
+          ((= j (rows grid)))
+        (do ((k 0 (+ k 1)))
+            ((= k (cols grid)))
+          (proc j k (ref grid j k)))))))
+
+(define-library (example life)
+  (export life)
+  (import (except (scheme base) set!)
+          (scheme write)
+          (example grid))
+  (begin
+    (define (life-count grid i j)
+      (define (count i j)
+        (if (ref grid i j) 1 0))
+      (+ (count (- i 1) (- j 1))
+         (count (- i 1) j)
+         (count (- i 1) (+ j 1))
+         (count i (- j 1))
+         (count i (+ j 1))
+         (count (+ i 1) (- j 1))
+         (count (+ i 1) j)
+         (count (+ i 1) (+ j 1))))
+    (define (life-alive? grid i j)
+      (case (life-count grid i j)
+        ((3) \sharptrue{})
+        ((2) (ref grid i j))
+        (else \sharpfalse{})))
+    (define (life-print grid)
+      (display "\backwhack{}x1B;[1H\backwhack{}x1B;[J")  ; vt100 をクリア
+      (each grid
+       (lambda (i j v)
+         (display (if v "*" " "))
+         (when (= j (- (cols grid) 1))
+           (newline)))))
+    (define (life grid iterations)
+      (do ((i 0 (+ i 1))
+           (grid0 grid grid1)
+           (grid1 (make (rows grid) (cols grid))
+                  grid0))
+          ((= i iterations))
+        (each grid0
+         (lambda (j k v)
+           (let ((a (life-alive? grid0 j k)))
+             (set! grid1 j k a))))
+        (life-print grid1)))))
+
+;; メインプログラム。
+(import (scheme base)
+        (only (example life) life)
+        (rename (prefix (example grid) grid-)
+                (grid-make make-grid)))
+
+;; gliderでグリッドを初期化する。
+(define grid (make-grid 24 24))
+(grid-set! grid 1 1 \sharptrue{})
+(grid-set! grid 2 2 \sharptrue{})
+(grid-set! grid 3 0 \sharptrue{})
+(grid-set! grid 3 1 \sharptrue{})
+(grid-set! grid 3 2 \sharptrue{})
+
+;; 80回繰り返す。
+(life grid 80)
+
+\end{scheme}
+
+\section{REPL}
+
+実装は，インポート宣言，式および定義が，一度に入力および評価できる \defining{REPL} (read-eval-printループ) と呼ばれる対話型セッションを提供してもよい。
+利便性と使いやすさのために， REPL のグローバル Scheme 環境は空であってはならないが，
+少なくとも，基本ライブラリによって提供される束縛から始めなければならない。
+このライブラリは，Schemeのコア構文と，データを操作する一般的に有用な手続きを含んでいる。
+たとえば，変数 {\cf abs} は数の絶対値を計算する，一引数の手続きに束縛されており，
+変数 {\cf +} は合計を計算する手続きに束縛されている。
+ {\cf(scheme base)} 束縛の完全なリストは，付録\ref{stdlibraries} に記載されている。
+
+実装は，すべての可能な変数が場所に束縛されていて，
+そのほとんどが未規定の値を含んでいるかのように振舞うような
+初期 REPL 環境を提供してもよい。
+このような実装におけるトップレベルの REPL 定義は，
+識別子が構文キーワードとして定義されない限り，真に代入と等価である。
+
+実装は， REPL が入力をファイルから読み取る操作モードを提供してもよい。
+このようなファイルは，先頭以外の場所にインポート宣言を含めることができるので，一般的には，プログラムと同じではない。
+

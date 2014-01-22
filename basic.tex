@@ -1,0 +1,337 @@
+%\vfill\eject
+\chapter{基本概念}
+\label{basicchapter}
+
+\section{変数，構文キーワード，および領域}
+\label{specialformsection}
+\label{variablesection}
+
+識別子\index{identifier}は，構文の型
+または値を格納できる場所のどちらかに名前をつけることができる。
+構文の型の名前になっている識別子は，
+{\em 構文キーワード} ({\em syntactic
+keyword}\/) \mainindex{syntactic keyword}と呼ばれ，
+場所の名前になっている識別子は，
+{\em 変数} ({\em variable}\/) \mainindex{variable}と呼ばれ，
+その場所に{\em 束縛}されていると言われる。
+プログラムの中のある地点で有効なすべての可視な束縛\mainindex{binding}から
+なる集合は，その地点で有効な{\em 環境} ({\em environment}\/) として知られる。
+変数が束縛されている場所に格納されている値は，その変数の値と呼ばれる。
+用語の誤用によって，
+変数が値の名前になるとか，値に束縛されるとか言われることがある。
+これは必ずしも正しくはないが，
+こうした用法から混乱がもたらされることは滅多にない。
+
+\vest ある種の式型が，新しい種類の構文を作成して構文キーワードをその新しい構文に
+束縛するために使われる一方，
+別の式型は新しい場所を作成して変数をその場所に束縛する。
+これらの式型を{\em 束縛コンストラクト} ({\em binding
+construct}\/) \mainindex{binding construct}と呼ぶ。
+構文キーワードを束縛するコンストラクトは\ref{macrosection}節で挙げる。
+最も基本的な変数束縛コンストラクトは {\cf lambda} 式である。
+なぜなら他の変数束縛コンストラクトはすべて {\cf lambda} 式によって
+説明できるからである。
+他の変数束縛コンストラクトは {\cf let}, {\cf let*}, {\cf letrec},
+{\cf letrec*}, {\cf let-values}, {\cf let*-values},
+{\cf do} の各式である(\ref{lambda}節, \ref{letrec}節, \ref{do}節参照)。
+
+%Note: internal definitions not mentioned here.
+
+\vest Scheme はブロック構造をもつ言語である。
+プログラムの中で識別子が束縛される箇所にはそれぞれ，それに対応して，その束縛が
+可視であるようなプログラムテキストの{\em 領域} (\defining{region}\/) がある。
+領域は，束縛を設けたまさにその束縛コンストラクトによって決定される。
+たとえば，もし束縛が {\cf lambda} 式によって設けられたならば，
+その束縛の領域はその {\cf lambda} 式全体である。
+識別子への言及はそれぞれ，
+その識別子の使用を囲む領域のうち最内のものを設けた束縛を参照する。
+もしも使用を囲むような領域をとる束縛がその識別子にないならば，
+その使用は変数に対する大域環境での束縛を，もしあれば，参照する
+(\ref{expressionchapter}章および\ref{initialenv}章)。
+もしもその識別子に対する束縛が全くないならば，
+その識別子は{\em 未束縛} (\defining{unbound}\/) で
+あると言われる。\mainindex{bound}\index{global environment}
+
+\section{型の分離性}
+\label{disjointness}
+
+どのオブジェクトも下記の述語を二つ以上満たすことはない。
+
+\begin{scheme}
+boolean?          bytevector?
+char?             eof-object?
+null?             number?
+pair?             port?
+procedure?        string?
+symbol?           vector?
+\end{scheme}
+
+かつすべての述語が {\cf define-record-type} によって作られる。
+
+これらの述語が {\em ブーリアン，バイトベクタ，文字}，空リストオブジェクト，
+{\em EOFオブジェクト，数，ペア，ポート，手続き，文字列，シンボル，ベクタ}，
+およびすべてのレコード型が型を定義する。
+\mainindex{type}\schindex{boolean?}\schindex{pair?}\schindex{symbol?}
+\schindex{number?}\schindex{char?}\schindex{string?}\schindex{vector?}
+\schindex{bytevector?}\schindex{port?}\schindex{procedure?}\index{empty list}
+\schindex{eof-object?}
+
+単独のブーリアン型というものはあるが，あらゆる Scheme 値を
+条件テストの目的のためにブーリアン値として使うことができる。
+\ref{booleansection}節で説明するように，
+\schfalse{} を除くすべての値はこのようなテストで真と見なされる。
+本報告書は ``真'' (true) という言葉を \schfalse{} を除くあらゆる Scheme 値の
+ことを言うために使い，``偽'' (false) という言葉を \schfalse{} のことを
+言うために使う。\mainindex{true} \mainindex{false}
+
+\section{外部表現}
+\label{externalreps}
+
+Scheme (および Lisp) の一つの重要な概念は，
+文字の列としてのオブジェクトの{\em 外部表現} ({\em external
+representation}\/) という概念である。
+たとえば，整数 28 の外部表現は文字の列 ``{\tt 28}'' であり，
+整数 8 と 13 からなるリストの外部表現は文字の列 ``{\tt(8 13)}'' である。
+
+オブジェクトの外部表現は必ずしも一意的ではない。
+整数 28 には ``{\tt \#e28.000}'' や ``{\tt\#x1c}'' という表現もあり，
+上の段落のリストには ``{\tt( 08 13 )}'' や ``{\tt(8 .\ (13 .\ ()))}'' という
+表現もある(\ref{listsection}節参照)。
+
+多くのオブジェクトには標準的な外部表現があるが，手続きなど，標準的な
+表現がないオブジェクトもある (ただし，個々の実装がそれらに対する
+表現を定義してもよい)。
+
+対応するオブジェクトを得るために，
+外部表現をプログラムの中に記述することができる(\ref{quote}節， {\cf quote} 参照)。
+
+外部表現は入出力のために使うこともできる。
+手続き {\cf read} (\ref{read}節) は外部表現をパースし，
+手続き {\cf write} (\ref{write}節) は外部表現を生成する。
+これらは共同してエレガントで強力な入出力の手段を与えている。
+
+文字の列 ``{\tt(+ 2 6)}'' は，整数 8 へと評価される式で{\em ある}が，
+整数 8 の外部表現では{\em ない}ことに注意せよ。
+正しくは，それはシンボル {\tt +} と整数 2 と 6 からなる３要素のリストの
+外部表現である。
+Scheme の構文の性質として，１個の式であるような文字の列はなんであれ，
+１個のなんらかのオブジェクトの外部表現でもある。
+これは混乱をもたらしかねない。なぜなら，
+与えられた文字の列がデータを表そうとしているのか，
+それともプログラムを表そうとしているのか，
+文脈から必ずしも明らかではないからである。
+しかし，これは強力さの源でもある。なぜなら，
+これはインタプリタやコンパイラなど，プログラムをデータとして (あるいは
+逆にデータをプログラムとして) 扱うプログラムを書くことを容易にするからである。
+
+様々な種類のオブジェクトの外部表現の構文については，
+そのオブジェクトを操作するためのプリミティブの，
+\ref{initialenv}章の該当する節における記述の中で述べる。
+
+\section{記憶モデル}
+\label{storagemodel}
+
+変数と，ペアや文字列やベクタやバイトベクタなどのオブジェクトは，暗黙のうちに
+場所\mainindex{location}または場所の列を表している。
+たとえば，文字列はその文字列の中にある文字数と同じだけの場所を表している。
+新しい値はこれらの場所の一つに {\tt string-set!} 手続きを使って
+格納できるが，文字列はあいかわらず同じ場所を指し続ける。
+
+変数参照または {\cf car}，{\cf vector-ref}，{\cf string-ref} などの
+手続きによって，ある場所からオブジェクトを取り出したとき，そのオブジェクトは，
+取出しの前にその場所に最後に格納されたオブジェクトと，
+\ide{eqv?}
+(\ref{equivalencesection}節) の意味で等価である。
+
+場所にはそれぞれ，その場所が使用中かどうかを示すマークが付けられている。
+使用中でない場所を変数またはオブジェクトが参照することは決してない。
+
+本報告書が，記憶領域を変数またはオブジェクトのために新たに割り当てる，と述べる
+とき常にそれが意味することは，
+使用中でない場所からなる集合から適切な個数の場所を選び出し，
+それらの場所に現在使用中であることを示すマークを付けてから，
+それらの場所を指すように変数またはオブジェクトを整える，ということである。
+にもかかわらず，
+空リストが新たに割り当てることができないことがるわかるのは，
+それが固有のオブジェクトだからである。場所を含んでいない空文字列，空の
+ベクタ，および空のバイトベクタは，
+新たに割り当てをしてもしなくてもよいということもわかる。
+
+場所を表すすべてのオブジェクトは，
+書換え可能\index{mutable} (mutable) か
+書換え不可能\index{immutable} (immutable) のいずれかである。リテラル定数，
+\ide{symbol->string} で返される文字列，
+そしておそらく {\cf scheme-report-environment} で返される環境は
+書換え不可能オブジェクトである。本報告書に挙げられている
+他の手続きが作成するオブジェクトはすべて書換え可能である。
+書換え不可能オブジェクトが表している場所に新しい値を格納しようとすることは
+エラーである。
+
+%% If an implementation makes it impossible for any program to alter an
+%% immutable object, it may treat the object as a value (similar to a
+%% number, boolean, symbol, or the empty list) rather than as a container
+%% for immutable locations.
+\todo{Shinn: The previous comment that it is an error to mutate these
+  locations, combined with the following comment that they are only
+  conceptual, makes this note seem unecessary.}
+
+これらの場所は概念的に理解すべきであり，物理的ではない。
+したがって，これらは必ずしもメモリアドレスに対応しておらず，
+もしそうであったとしても，メモリアドレスが一定でない可能性がある。
+
+\begin{rationale}
+多くのシステムでは，定数(すなわちリテラル式の値)については，
+読み出し専用メモリ内に常駐することが望ましい。
+書換え可能オブジェクトと書換え不可能オブジェクトを区別するために他の仕組みを必要としないのと同時に，
+定数の変更をエラーにすることは，この実装戦略を可能にする。
+\end{rationale}
+
+\section{真正な末尾再帰}
+\label{proper tail recursion}
+
+Scheme の実装は{\em 真正に末尾再帰的}\mainindex{proper tail recursion}で
+あることが必須である。
+下記で定義する特定の構文的文脈に出現している手続き呼出しは{\em 末尾呼出し}で
+ある。
+もし無限個のアクティブな末尾呼出しを Scheme の実装がサポートしている
+場合，その実装は真正に末尾再帰的である。
+呼出しが{\em アクティブ}であるとは，呼び出した手続きから戻る可能性が
+まだあるということである。
+この，戻る可能性のある呼出しには，現在の継続によるものと，
+{\cf call-with-current-continuation} によって以前に取り込まれ，
+後になって呼び起こされた継続によるものがあることに注意せよ。
+取り込まれた継続がなかった場合，
+呼出しは高々１回戻ることができるだけであり，
+アクティブな呼出しとはまだ戻っていない呼出しのことである，となっただろう。
+真正な末尾再帰の形式的定義は\cite{propertailrecursion}に見られる。
+
+\begin{rationale}
+
+直観的に，アクティブな末尾呼出しに対して空間は不必要である。
+なぜなら末尾呼出しで使われる継続は，その末尾呼出しを収める手続きに
+渡されている継続と，同一の意味論をもつからである。
+たとえ非真正な実装が末尾呼出しで新しい継続を使ったとしても，
+この新しい継続への戻りは，ただちに，
+もともと手続きに渡されていた継続への戻りへと続くことになる。
+真正に末尾再帰的な実装は，直接その継続へと戻るのである。
+
+真正な末尾再帰は，Steele と Sussman のオリジナル版 Scheme にあった
+中心的なアイディアの一つだった。
+彼らの最初の Scheme インタプリタは関数とアクタ (actor) の両方を実装した。
+制御フローはアクタを使って表現された。
+アクタは，結果を呼出し元に返すかわりに別のアクタへ渡すという点で，
+関数と異なっていた。
+本節の用語で言えば，各アクタは別のアクタへの末尾呼出しで終わったわけである。
+
+Steele と Sussman はその後，彼らのインタプリタの中の
+アクタを扱うコードが関数のそれと同一であり，したがって
+言語の中に両方を含める必要がないことに気づいた。
+
+\end{rationale}
+
+{\em 末尾呼出し}\mainindex{tail call} ({\em tail call}\/) とは，
+{\em 末尾文脈} ({\em tail context}\/) に出現している手続き呼出しである。
+末尾文脈は帰納的に定義される。
+末尾文脈は常に個々のラムダ式に関して決定されることに注意せよ。
+
+\begin{itemize}
+\item 下記に \hyper{末尾式} として示されているラムダ式本体内の最後の式は
+末尾文脈に出現している。
+  同じことが {\cf case-lambda} 式のすべての本体についても真である。
+
+\begin{grammar}%
+(l\=ambda \meta{仮引数部}
+  \>\arbno{\meta{定義}} \arbno{\meta{式}} \meta{末尾式})
+
+(case-lambda \arbno{(\meta{仮引数部} \meta{末尾本体})})
+\end{grammar}%
+
+\item もし以下の式の一つが末尾文脈にあるならば，
+\meta{末尾式} として示されている部分式は末尾文脈にある。
+これらは\ref{formalchapter}章で与える文法の規則から \meta{本体} の
+いくつかの出現を \meta{末尾本体} で， \meta{式} の
+いくつかの出現を \meta{末尾式} で， \meta{シーケンス} の
+いくつかの出現を \meta{末尾シーケンス} で，それぞれ置き換えることによって導出された。
+それらのうち末尾文脈をもつ規則だけが，ここに示されている。
+
+\begin{grammar}%
+(if \meta{式} \meta{末尾式} \meta{末尾式})
+(if \meta{式} \meta{末尾式})
+
+(cond \atleastone{\meta{cond節}})
+(cond \arbno{\meta{cond節}} (else \meta{末尾列}))
+
+(c\=ase \meta{式}
+  \>\atleastone{\meta{case節}})
+(c\=ase \meta{式}
+  \>\arbno{\meta{case節}}
+  \>(else \meta{末尾列}))
+
+(and \arbno{\meta{式}} \meta{末尾式})
+(or \arbno{\meta{式}} \meta{末尾式})
+
+(when \meta{テスト} \meta{末尾列})
+(unless \meta{テスト} \meta{末尾列})
+
+(let (\arbno{\meta{束縛仕様}}) \meta{末尾本体})
+(let \meta{変数} (\arbno{\meta{束縛仕様}}) \meta{末尾本体})
+(let* (\arbno{\meta{束縛仕様}}) \meta{末尾本体})
+(letrec (\arbno{\meta{束縛仕様}}) \meta{末尾本体})
+(letrec* (\arbno{\meta{束縛仕様}}) \meta{末尾本体})
+(let-values (\arbno{\meta{mv 束縛仕様}}) \meta{末尾本体})
+(let*-values (\arbno{\meta{mv 束縛仕様}}) \meta{末尾本体})
+
+(let-syntax (\arbno{\meta{構文仕様}}) \meta{末尾本体})
+(letrec-syntax (\arbno{\meta{構文仕様}}) \meta{末尾本体})
+
+(begin \meta{末尾列})
+
+(d\=o \=(\arbno{\meta{繰返し仕様}})
+  \>  \>(\meta{テスト} \meta{末尾列})
+  \>\arbno{\meta{式}})
+
+{\rm ただし}
+
+\meta{cond節} \: (\meta{テスト} \meta{末尾列})
+\meta{case節} \: ((\arbno{\meta{データ}}) \meta{末尾列})
+
+\meta{末尾本体} \: \arbno{\meta{定義}} \meta{末尾列}
+\meta{末尾列} \: \arbno{\meta{式}} \meta{末尾式}
+\end{grammar}%
+
+\item
+もし {\cf cond} または {\cf case}式が末尾文脈にあって，
+{\cf (\hyperi{式} => \hyperii{式})} という形式の節をもつならば，
+\hyperii{式} の評価から結果として生ずる (暗黙の) 手続き呼出しは末尾文脈にある。
+\hyperii{式} それ自身は末尾文脈にはない。
+
+
+\end{itemize}
+
+本報告書で定義された特定の手続きも末尾呼出しを行うことが必須である。
+\ide{apply} および \ide{call-with-current-continuation} へ渡される第１引数と，
+\ide{call-with-values} へ渡される第２引数は，
+末尾呼出しによって呼び出されなければならない。
+同様に，\ide{eval} はその引数を，あたかもそれが \ide{eval} 手続きの中の
+末尾位置にあるかのように，評価しなければならない。
+
+以下の例で末尾呼出しは {\cf f} の呼出しだけである。
+{\cf g} と {\cf h} の呼出しは末尾呼出しではない。
+{\cf x} の参照は末尾文脈にあるが，呼出しではないから末尾呼出しではない。
+\begin{scheme}%
+(lambda ()
+  (if (g)
+      (let ((x (h)))
+        x)
+      (and (g) (f))))
+\end{scheme}%
+
+\begin{note}
+実装は，
+上記の {\cf h} の呼出しなどの，あたかも末尾呼出しであるかのように
+評価できるいくつかの非末尾呼出しを認識してもよい。
+上記の例では，{\cf let} 式を {\cf h} の末尾呼出しとしてコンパイルできるだろう。
+({\cf h} が予期しない個数の値を返す可能性は無視してよい。なぜなら，
+その場合 {\cf let} の効果は明示的に未規定であり実装依存だからである。)
+\end{note}
+

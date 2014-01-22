@@ -1,0 +1,1745 @@
+\chapter{式}
+\label{expressionchapter}
+
+\newcommand{\syntax}{{\em 構文: }}
+\newcommand{\semantics}{{\em 意味: }}
+
+式型は，{\em 原始}式型 ({\em primitive} expression type) と，
+{\em 派生}式型 ({\em derived} expression type) に大別される。
+原始式型は変数と手続き呼出しを含む。
+派生式型は意味論的に原始的ではなく，マクロとして定義できる。
+派生式のいくつかの適切な構文定義は，\ref{derivedsection}節に記載されている。
+
+手続き {\cf force}, {\cf promise?}, {\cf make-promise}, および {\cf make-parameter}
+はまた {\cf delay}, {\cf delay-force}, および {\cf parameterize} 式型と
+密接に関連しているので本章に記載されている。
+
+\section{原始式型}
+\label{primitivexps}
+
+\subsection{変数参照}\unsection
+
+\begin{entry}{%
+\pproto{\hyper{変数}}{\exprtype}}
+
+一つの変数\index{variable} (\ref{variablesection}節) からなる式は，
+変数参照である。
+変数参照の値は，その変数が束縛されている場所に格納されている値である。
+未束縛\index{unbound}の変数を参照することはエラーである。
+
+\begin{scheme}
+(define x 28)
+x   \ev  28%
+\end{scheme}
+\end{entry}
+
+\subsection{リテラル式}\unsection
+\label{literalsection}
+
+\begin{entry}{%
+\proto{quote}{ \hyper{データ}}{\exprtype}
+\pproto{\singlequote\hyper{データ}}{\exprtype}
+\pproto{\hyper{定数}}{\exprtype}}
+
+{\cf (quote \hyper{データ})} は \hyper{データ} へと評価される。\mainschindex{'}
+\hyper{データ} は 任意の Scheme オブジェクトの外部表現がなりうる
+(\ref{externalreps}節参照)。
+この表記はリテラル定数を Scheme コードの中に含めるために使われる。
+
+\begin{scheme}%
+(quote a)                     \ev  a
+(quote \sharpsign(a b c))     \ev  \#(a b c)
+(quote (+ 1 2))               \ev  (+ 1 2)%
+\end{scheme}
+
+{\cf (quote \hyper{データ})} は \singlequote\hyper{データ} と略記できる。
+この二つの表記はすべての点で等価である。
+
+\begin{scheme}
+'a                   \ev  a
+'\#(a b c)           \ev  \#(a b c)
+'()                  \ev  ()
+'(+ 1 2)             \ev  (+ 1 2)
+'(quote a)           \ev  (quote a)
+''a                  \ev  (quote a)%
+\end{scheme}
+
+数値定数，文字列定数，文字定数，ベクタ定数，バイトベクタ定数，ブーリアン定数は
+それ自身へと評価される。
+それらはクォート (quote) しなくてもよい。
+
+\begin{scheme}
+'145932    \ev  145932
+145932     \ev  145932
+'"abc"     \ev  "abc"
+"abc"      \ev  "abc"
+'\#\space   \ev  \#\space
+\#\space   \ev  \#\space
+'\#(a 10)  \ev  \#(a 10)
+\#(a 10)  \ev  \#(a 10)
+'\#u8(64 65)  \ev  \#u8(64 65)
+\#u8(64 65)  \ev  \#u8(64 65)
+'\schtrue  \ev  \schtrue
+\schtrue   \ev  \schtrue%
+\end{scheme}
+
+\ref{storagemodel}節で注意したように，定数 (つまりリテラル式の値) を，
+{\cf set-car!} や {\cf string-set!} のような書換え手続きを使って書き換えようとする
+ことはエラーである。
+
+\end{entry}
+
+\subsection{手続き呼出し}\unsection
+
+\begin{entry}{%
+\pproto{(\hyper{演算子} \hyperi{オペランド} \dotsfoo)}{\exprtype}}
+
+手続き呼出しは，1つの呼び出される手続きとしての式に続いて，
+その手続きに渡される引数としての各式を，
+丸カッコでくくることによって書かれる。
+演算子とオペランドの各式が (未規定の順序で) 評価され，
+そしてその結果として得られた手続きに，結果として得られた引数が
+渡される。\mainindex{call}\mainindex{procedure call}
+\begin{scheme}%
+(+ 3 4)                          \ev  7
+((if \schfalse + *) 3 4)         \ev  12%
+\end{scheme}
+
+本書中の手続きは，標準ライブラリによりエクスポートされた変数の値として利用可能である。
+たとえば，上の例の加算と乗算の手続きは基本ライブラリ中の変数 {\cf +} と {\cf *} の値である。
+新しい手続きは \lambdaexp{}を評価することによって作成される
+(\ref{lambda}節参照)。
+
+手続き呼出しは任意個数の値を返すことができる
+(\ref{proceduresection}節 \ide{values} 参照)。
+本報告書で定義されているほとんどの手続きは１個の値を
+返すかまたは，{\cf apply} のような手続きについていえば，
+手続きの引数のうちの一つへの呼出しが返した (複数個の) 値を
+そのまま受け取って次に渡す。
+例外は個々の説明に記載されている。
+
+\begin{note}  ほかの Lisp の方言とは対照的に，評価の順序は未規定であり，
+かつ演算子式とオペランド式は常に同じ評価規則で評価される。
+\end{note}
+
+\begin{note}
+たしかにその他の点では評価の順序は未規定だが，ただし，
+演算子式とオペランド式を同時並行に評価するときは，
+その効果はなんらかの逐次的な評価順序と一致しなくてはならない。
+評価の順序はそれぞれの手続き呼出しごとに別々に選択されてもよい。
+\end{note}
+
+\begin{note} 多くの Lisp の方言では，
+空のリスト {\tt ()} はそれ自身に評価される正当な式である。
+Scheme では，エラーである。
+\end{note}
+
+\end{entry}
+
+
+\subsection{手続き}\unsection
+\label{lamba}
+
+\begin{entry}{%
+\proto{lambda}{ \hyper{仮引数部} \hyper{本体}}{\exprtype}}
+
+\syntax
+\hyper{仮引数部} は後述のような仮引数並びである。
+\hyper{本体} は０個以上の定義に続く１個以上の式からなる列である。
+
+\semantics
+\vest \lambdaexp{}は手続きへと評価される。
+\lambdaexp{}が評価される時に有効だった環境は，
+その手続きの一部として記憶される。
+その手続きを後からなんらかの実引数とともに呼び出すと，
+\lambdaexp{}が評価された時の環境が，
+仮引数並びの中の各変数を新しい場所へ束縛することによって拡張され，
+そして対応する実引数値がそれらの場所へ格納される。
+(新鮮な (\defining{fresh}) 場所は，すべての既存の場所とは異なるものである。)
+次に，ラムダ式の本体の各式
+(それが定義を含んでいる場合，{\cf letrec*} 形式を表す --- \ref{letrecstar}節参照)が，
+その拡張された環境の中で逐次的に評価される。
+本体の最後の式の結果が，
+その手続き呼出しの 結果として返される。
+
+\begin{scheme}
+(lambda (x) (+ x x))      \ev  {\em{}一つの手続き}
+((lambda (x) (+ x x)) 4)  \ev  8
+
+(define reverse-subtract
+  (lambda (x y) (- y x)))
+(reverse-subtract 7 10)         \ev  3
+
+(define add4
+  (let ((x 4))
+    (lambda (y) (+ x y))))
+(add4 6)                        \ev  10%
+\end{scheme}
+
+\hyper{仮引数部} は次の形式の一つをとる。
+
+\begin{itemize}
+\item {\tt(\hyperi{変数} \dotsfoo)}:
+手続きは固定個数の引数をとる。
+手続きが呼び出される時には，各引数がそれぞれ対応する変数に束縛された新しい場所に格納される。
+
+\item \hyper{変数}:
+手続きは任意個数の引数をとる。
+手続きが呼び出される時には，
+実引数の列が，一つの新たに割り当てられたリストへと変換され，
+そしてそのリストが \hyper{変数} に束縛された新しい場所に格納される。
+
+\item {\tt(\hyperi{変数} \dotsfoo{} \hyper{変数$_{n}$}\ {\bf.}\
+\hyper{変数$_{n+1}$})}:
+もしスペースで区切られたピリオドが最後の変数の前にあるならば，
+手続きは $n$ 個以上の引数をとる。
+ここで $n$ はピリオドの前にある仮引数の個数である ($1$ 以上で
+なければエラーである)。
+まず最後の変数以外の仮引数に対して実引数がそれぞれ対応づけられる。
+そのあと残余の実引数からなる一つの新たに割り当てられたリストが，
+最後の変数の束縛に格納される値になる。
+\end{itemize}
+
+一つの \hyper{変数} が \hyper{仮引数部} に複数回現れることはエラーである。
+
+\begin{scheme}
+((lambda x x) 3 4 5 6)          \ev  (3 4 5 6)
+((lambda (x y . z) z)
+ 3 4 5 6)                       \ev  (5 6)%
+\end{scheme}
+
+\end{entry}
+
+手続きに対して \ide{eqv?} と \ide{eq?} が機能するようにするため，
+\lambdaexp{}の評価結果として作成される手続きはそれぞれ (概念的には) 記憶場所を
+タグとしてタグ付けされる(\ref{equivalencesection}節参照)。
+
+
+\subsection{条件式}\unsection
+
+\begin{entry}{%
+\proto{if}{ \hyper{テスト} \hyper{帰結部} \hyper{代替部}}{\exprtype}
+\rproto{if}{ \hyper{テスト} \hyper{帰結部}}{\exprtype}}  %\/ if hyper = italic
+
+\syntax
+\hyper{テスト}，\hyper{帰結部}，\hyper{代替部} は式である。
+
+\semantics
+{\cf if} 式は次のように評価される。
+まず \hyper{テスト} が評価される。
+もしそれが真値\index{true} (\ref{booleansection}節参照) をもたらすならば，
+\hyper{帰結部} が評価されてその値が返される。
+そうでなければ \hyper{代替部} が評価されてその値が
+返される。
+もし \hyper{テスト} が偽値をもたらし，かつ \hyper{代替部} が
+規定されていなければ，式の結果は未規定である。
+
+\begin{scheme}
+(if (> 3 2) 'yes 'no)           \ev  yes
+(if (> 2 3) 'yes 'no)           \ev  no
+(if (> 3 2)
+    (- 3 2)
+    (+ 3 2))                    \ev  1%
+\end{scheme}
+
+\end{entry}
+
+
+\subsection{代入}\unsection
+\label{assignment}
+
+\begin{entry}{%
+\proto{set!}{ \hyper{変数} \hyper{式}}{\exprtype}}
+
+\semantics
+\hyper{式} が評価され，
+\hyper{変数} が束縛されている場所に結果の値が格納される。
+\hyper{変数} が {\cf set!} 式を取り囲むなんらかの領域\index{region}で，
+または大域的に束縛されていなければエラーである。
+{\cf set!} 式の結果は未規定である。
+
+\begin{scheme}
+(define x 2)
+(+ x 1)                 \ev  3
+(set! x 4)              \ev  \unspecified
+(+ x 1)                 \ev  5%
+\end{scheme}
+
+\end{entry}
+
+\subsection{包含(Inclusion)}\unsection
+\label{inclusion}
+\begin{entry}{%
+\proto{include}{ \hyperi{文字列} \hyperii{文字列} \dotsfoo}{\exprtype}
+\rproto{include-ci}{ \hyperi{文字列} \hyperii{文字列} \dotsfoo}{\exprtype}}
+
+\semantics
+\ide{include} および \ide{include-ci} はどちらも文字列リテラルとして１つ以上のファイル名をとり，
+対応するファイルを検索する実装固有のアルゴリズムを適用して
+{\cf read} の繰り返しのアプリケーションであるかのように指定された順序でファイルの内容を読み，
+効果的に {\cf include} または {\cf include-ci} 式を，
+ファイルから読み込まれたものを含む {\cf begin} 式に置き換える。
+両者の違いは，\ide{include-ci} は {\cf{}\#!fold-case} ディレクティブで始まったかのように，
+また \ide{include} はそうせずに各ファイルを読み込む。
+
+\begin{note}
+実装は，包含しているファイルがあるディレクトリ内のファイルを検索すること，
+および，検索する他のディレクトリを指定する方法をユーザに提供することが奨励される。
+\end{note}
+
+\end{entry}
+
+\section{派生式型}
+\label{derivedexps}
+
+本節のコンストラクトは，\ref{macrosection}節で論ずるような意味で，
+保健的である。
+典拠として，\ref{derivedsection}節は，本節で記述するコンストラクトの大部分
+をさきの節で記述した原始コンストラクトへと変換する構文定義を与える。
+
+
+\subsection{条件式}\unsection
+
+\begin{entry}{%
+\proto{cond}{ \hyperi{節} \hyperii{節} \dotsfoo}{\exprtype}
+\pproto{else}{\auxiliarytype}
+\pproto{=>}{\auxiliarytype}}
+
+\syntax
+\hyper{節} は二つの形式のいずれか一つをとる。
+\begin{scheme}
+(\hyper{テスト} \hyperi{式} \dotsfoo)%
+\end{scheme}
+ここで \hyper{テスト} は任意の式である。
+あるいは
+\begin{scheme}
+(\hyper{テスト} => \hyper{式})%
+\end{scheme}
+最後の \hyper{節} は ``else 節'' にもなりうる。これは次の形式をとる。
+\begin{scheme}
+(else \hyperi{式} \hyperii{式} \dotsfoo)\rm.%
+\end{scheme}
+\mainschindex{else}
+\mainschindex{=>}
+
+\semantics
+{\cf cond} 式は，一連の \hyper{節} の \hyper{テスト} 式を，
+その一つが真値\index{true} (\ref{booleansection}節参照) へと評価されるまで
+順に評価することによって評価される。
+ある \hyper{テスト} が真値へと評価されると，
+その \hyper{節} の残りの各 \hyper{式} が順に評価され，
+そしてその \hyper{節} の最後の \hyper{式} の結果が
+その {\cf cond} 式全体の結果として返される。
+
+もし選択された \hyper{節} に \hyper{テスト} だけあって \hyper{式} が
+なければ，\hyper{テスト} の値が結果として返される。
+もし選択された \hyper{節} が \ide{=>} 代替形式を使っているならば，
+その \hyper{式} が評価される。
+値が１引数をとる手続きでなければエラーである。
+それからこの手続きが \hyper{テスト} の値を引数として呼び出され，
+そしてこの手続きが返した値が {\cf cond} 式によって
+返される。
+
+もしすべての \hyper{テスト} が \schfalse{} へと評価されたとき，
+else 節がなければその条件式の結果は未規定であるが，
+else 節があればその各 \hyper{式} が順に評価されて
+その最後の式の値が返される。
+
+\begin{scheme}
+(cond ((> 3 2) 'greater)
+      ((< 3 2) 'less))         \ev  greater%
+
+(cond ((> 3 3) 'greater)
+      ((< 3 3) 'less)
+      (else 'equal))            \ev  equal%
+
+(cond ((assv 'b '((a 1) (b 2))) => cadr)
+      (else \schfalse{}))         \ev  2%
+\end{scheme}
+
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{case}{ \hyper{キー} \hyperi{節} \hyperii{節} \dotsfoo}{\exprtype}}
+
+\syntax
+\hyper{キー} は任意の式がなりうる。
+各 \hyper{節} は次の形式をとる。
+\begin{scheme}
+((\hyperi{データ} \dotsfoo) \hyperi{式} \hyperii{式} \dotsfoo)\rm,%
+\end{scheme}
+ここで各 \hyper{データ} は，なんらかのオブジェクトの外部表現である。
+式のどの任意の \hyper{データ} も異なっていなければエラーである。
+代わりに，\hyper{節}は次の形式をとる。
+\begin{scheme}
+((\hyperi{データ} \dotsfoo) => \hyper{式})%
+\end{scheme}
+
+最後の \hyper{節} は ``else 節'' にもなりうる。これは次の形式をとる。
+\begin{scheme}
+(else \hyperi{式} \hyperii{式} \dotsfoo)
+\end{scheme}
+または
+\begin{scheme}
+(else => \hyper{式})\rm.%
+\end{scheme}
+\schindex{else}
+
+\semantics
+{\cf case} 式は次のように評価される。
+\hyper{キー} が評価され，その結果が各 \hyper{データ} と比較される。
+もし \hyper{キー} を評価した結果が，ある \hyper{データ} と ({\cf eqv?} の
+意味で) 同じならば (\ref{eqv?}節参照)，
+対応する \hyper{節} の各式が左から右へと順に評価され，
+そしてその \hyper{節} の最後の式の結果が {\cf case} 式
+の結果として返される。
+
+もし \hyper{キー} を評価した結果がどの \hyper{データ} とも異なるとき，
+else 節があれば，その各式が評価されてその最後の結果
+が {\cf case} 式の結果になるが，
+なければ {\cf case} 式の結果は未規定である。
+
+もし選択された \hyper{節} またはelse 節が \ide{=>} の代替形式を使っていれば，
+\hyper{式} が評価される。
+値が１引数をとる手続きでなければエラーである。
+この手続きはこのとき，\hyper{キー} の値で呼ばれ，
+この手続きによって返される値は， {\cf case} 式によって返される。
+
+\begin{scheme}
+(case (* 2 3)
+  ((2 3 5 7) 'prime)
+  ((1 4 6 8 9) 'composite))     \ev  composite
+(case (car '(c d))
+  ((a) 'a)
+  ((b) 'b))                     \ev  \unspecified
+(case (car '(c d))
+  ((a e i o u) 'vowel)
+  ((w y) 'semivowel)
+  (else => (lambda (x) x)))     \ev  c%
+\end{scheme}
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{and}{ \hyperi{テスト} \dotsfoo}{\exprtype}}
+
+\semantics
+各 \hyper{テスト} 式が左から右へと評価され，もし任意の式が
+\schfalse{} (\ref{booleansection}節参照) へと評価されたとき，\schfalse{} が返される。
+残りの式は評価されない。
+もしすべての式が真値へと評価されたならば，最後の式の値が返される。
+もし式が一つもなければ \schtrue{} が返される。
+
+\begin{scheme}
+(and (= 2 2) (> 2 1))           \ev  \schtrue
+(and (= 2 2) (< 2 1))           \ev  \schfalse
+(and 1 2 'c '(f g))             \ev  (f g)
+(and)                           \ev  \schtrue%
+\end{scheme}
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{or}{ \hyperi{テスト} \dotsfoo}{\exprtype}}
+
+\semantics
+各 \hyper{テスト} 式が左から右へと評価され，
+真値 (\ref{booleansection}節参照) へと評価された最初の式の値が返される。
+残りの式は評価されない。
+もしすべての式が \schfalse{} へと評価されたか，もし式が一つもなければ \schfalse{} が返される。
+
+\begin{scheme}
+(or (= 2 2) (> 2 1))            \ev  \schtrue
+(or (= 2 2) (< 2 1))            \ev  \schtrue
+(or \schfalse \schfalse \schfalse) \ev  \schfalse
+(or (memq 'b '(a b c))
+    (/ 3 0))                    \ev  (b c)%
+\end{scheme}
+
+\end{entry}
+
+\begin{entry}{%
+\proto{when}{ \hyper{テスト} \hyperi{式} \hyperii{式} \dotsfoo}{\exprtype}}
+
+\syntax
+\hyper{テスト} は一つの式である。
+
+\semantics
+テストが評価され，それが真値へと評価されたならば，
+式が順に評価される。
+{\cf when} 式の結果は未規定である。
+
+\begin{scheme}
+(when (= 1 1.0)
+  (display "1")
+  (display "2"))  \ev  \unspecified
+ \>{\em and prints}  12%
+\end{scheme}
+\end{entry}
+
+\begin{entry}{%
+\proto{unless}{ \hyper{テスト} \hyperi{式} \hyperii{式} \dotsfoo}{\exprtype}}
+
+\syntax
+\hyper{テスト} は一つの式である。
+
+\semantics
+テストが評価され，それが \schfalse{} へと評価されたならば，
+式が順に評価される。
+{\cf unless} 式の結果は未規定である。
+
+\begin{scheme}
+(unless (= 1 1.0)
+  (display "1")
+  (display "2"))  \ev  \unspecified
+ \>{\em and prints nothing}%
+\end{scheme}
+\end{entry}
+
+\begin{entry}{%
+\proto{cond-expand}{ \hyperi{ce節} \hyperii{ce節} \dotsfoo}{\exprtype}}
+
+\syntax
+\ide{cond-expand} 式型は実装に依存する異なる式を静的にする展開方法を提供する。
+\hyper{ce節} は次の形式をとる。
+
+{\tt(\hyper{機能要件} \hyper{式} \dotsfoo)}
+
+最後の \hyper{節} は ``else 節'' にもなりうる。これは次の形式をとる。
+
+{\tt(else \hyper{式} \dotsfoo)}
+
+\hyper{機能要件} は次の形式のいずれか一つをとる。
+
+\begin{itemize}
+\item {\tt\hyper{機能識別子}}
+\item {\tt(library \hyper{ライブラリ名})}
+\item {\tt(and \hyper{機能要件} \dotsfoo)}
+\item {\tt(or \hyper{機能要件} \dotsfoo)}
+\item {\tt(not \hyper{機能要件})}
+\end{itemize}
+
+\semantics
+各実装は，インポートすることができるライブラリのリストと同様に，存在している機能識別子のリストを管理する。
+\hyper{機能要件} の値は，実装のリスト上の各 \hyper{機能識別子} および
+{\tt(library \hyper{ライブラリ名})} を \schtrue に，
+他の機能識別子とライブラリ名を \schfalse に置き換えることよって決まる。
+このとき，{\cf and}, {\cf or}, および {\cf not} の通常の解釈のもとで
+Scheme のブーリアン式として結果の式が評価される。
+
+\ide{cond-expand} はこのとき，それらの一つが \schtrue を返すまで
+連続した \hyper{ce節}の\hyper{機能要件}を順に評価することによって展開される。
+真の句が見つかったとき，対応する \hyper{式} が {\cf begin} に展開され，
+残りの句は無視される。
+\hyper{機能要件} が一つも \schtrue に評価されない場合，もし else句があれば，その\hyper{式}が含まれる。
+そうでない場合， \ide{cond-expand} の振舞いは未規定である。
+{\cf cond} と違って， {\cf cond-expand} は任意の変数の値に依存しない。
+
+提供される正確な機能は実装定義であるが，移植性のために機能のコア集合は付録 \ref{stdfeatures} に記載されている。
+
+\end{entry}
+
+\subsection{束縛コンストラクト}
+\label{bindingsection}
+
+束縛コンストラクト {\cf let}, {\cf let*}, {\cf letrec} {\cf letrec*},
+{\cf let-values}, および {\cf let*-values} は，
+Scheme に Algol 60 のようなブロック構造を与える。
+最初の四つのコンストラクトの構文は同一だが，
+その変数束縛のためにそれらが設ける領域\index{region}が異なる。
+{\cf let} 式は，各初期値をすべて計算してから変数を束縛する。
+{\cf let*} 式は，束縛と評価を一つ一つ逐次的に行う。
+しかるに {\cf letrec} と {\cf letrec*} 式では，
+初期値を計算している間すべての束縛が有効であり，
+したがって相互再帰的な定義が可能である。
+{\cf let-values} および {\cf let*-values} コンストラクトはそれぞれ {\cf let} と {\cf let*}
+と似ているが，複数値の式を操作するために設計されており，異なる識別子を戻り値に束縛する。
+
+\begin{entry}{%
+\proto{let}{ \hyper{束縛部} \hyper{本体}}{\exprtype}}
+
+\syntax
+\hyper{束縛部} は次の形式をとること。
+\begin{scheme}
+((\hyperi{変数} \hyperi{初期値}) \dotsfoo)\rm,%
+\end{scheme}
+ここで各 \hyper{初期値} は式で， \hyper{本体} は \ref{lambda}節に記述されているような
+１個以上の式からなる列に続く０個以上の定義からなる列である。
+束縛される変数のリストの中に一つの \hyper{変数} が複数回現れることは
+エラーである。
+
+\semantics
+各 \hyper{初期値} が現在の環境の中で (ある未規定の順序で) 評価される。
+その結果を保持する新しい場所へ，それぞれの \hyper{変数} が束縛される。
+その拡張された環境の中で \hyper{本体} が評価される。
+そして \hyper{本体} の最後の式の値が返される。
+\hyper{変数} のどの束縛も \hyper{本体} をその領域とする。\index{region}
+
+\begin{scheme}
+(let ((x 2) (y 3))
+  (* x y))                      \ev  6
+
+(let ((x 2) (y 3))
+  (let ((x 7)
+        (z (+ x y)))
+    (* z x)))                   \ev  35%
+\end{scheme}
+
+\ref{namedlet}節の``名前付き {\cf let}'' も見よ。
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{let*}{ \hyper{束縛部} \hyper{本体}}{\exprtype}}\nobreak
+
+\nobreak
+\syntax
+\hyper{束縛部} は次の形式をとる。
+\begin{scheme}
+((\hyperi{変数} \hyperi{初期値}) \dotsfoo)\rm,%
+\end{scheme}
+かつ \hyper{本体} は，\ref{lambda} 節に記述されているような
+１個以上の式に続く０個以上の定義からなる列である。
+
+\semantics
+{\cf let*} 束縛コンストラクトは {\cf let} と似ているが，束縛は左から右へと順に実行され，
+{\cf(\hyper{変数} \hyper{初期値})} で示される束縛の領域\index{region}は，
+束縛の右側の {\cf let*} 式の一部である。
+したがって２番目の束縛は１番目の束縛が可視である環境でなされる等々である。
+\hyper{変数} は別個である必要はない。
+
+\begin{scheme}
+(let ((x 2) (y 3))
+  (let* ((x 7)
+         (z (+ x y)))
+    (* z x)))             \ev  70%
+\end{scheme}
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{letrec}{ \hyper{束縛部} \hyper{本体}}{\exprtype}}
+
+\syntax
+\hyper{束縛部} は次の形式をとる。
+\begin{scheme}
+((\hyperi{変数} \hyperi{初期値}) \dotsfoo)\rm,%
+\end{scheme}
+かつ \hyper{本体} は，\ref{lambda}節に記述されているような
+１個以上の式に続く０個以上の定義からなる列である。
+束縛される変数のリストの中に一つの \hyper{変数} が複数回現れることは
+エラーである。
+
+\semantics
+未規定値を保持する新しい場所へ，それぞれの \hyper{変数} が束縛される。
+その結果として得られた環境で，各 \hyper{初期値} が (ある未規定の順序で) 評価される。
+各 \hyper{変数} にそれぞれ対応する \hyper{初期値} の結果が代入される。
+その結果として得られた環境で， \hyper{本体} が評価される。
+そして \hyper{本体} の最後の式の値が返される。
+\hyper{変数} のどの束縛も {\cf letrec} 式全体をその領域\index{region}とする。
+これは相互再帰的な手続きを定義することを可能にしている。
+
+\begin{scheme}
+(letrec ((even?
+          (lambda (n)
+            (if (zero? n)
+                \schtrue
+                (odd? (- n 1)))))
+         (odd?
+          (lambda (n)
+            (if (zero? n)
+                \schfalse
+                (even? (- n 1))))))
+  (even? 88))
+		\ev  \schtrue%
+\end{scheme}
+
+{\cf letrec} の一つの制限はとても重要である。
+各 \hyper{初期値} は，どの \hyper{変数} の値も参照ないし代入することなく
+評価することが可能でなければエラーである。
+この制限が必要なのは，{\cf letrec} が手続き呼び出しの意味で定義されるからであり，
+ここで {\cf lambda} 式は変数を \hyper{初期値} の値に束縛する。
+最もありふれた {\cf letrec} の用途では，
+\hyper{初期値} はすべて\lambdaexp{}であり，この制限は自動的に満たされる。
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{letrec*}{ \hyper{束縛部} \hyper{本体}}{\exprtype}}
+\label{letrecstar}
+
+\syntax
+\hyper{束縛部} は次の形式をとる。
+\begin{scheme}
+((\hyperi{変数} \hyperi{初期値}) \dotsfoo)\rm,%
+\end{scheme}
+かつ \hyper{本体}\index{body} は，\ref{lambda}節に記述されているような
+１個以上の式に続く０個以上の定義からなる列である。
+束縛される変数の並びの中に一つの \hyper{変数} が複数回現れることは
+エラーである。
+
+\semantics
+新しい場所へ，それぞれの \hyper{変数} が束縛される。
+各 \hyper{変数} にそれぞれ対応する \hyper{初期値} の評価結果が左から右へと順に代入される。
+その結果として得られた環境で \hyper{本体} が評価される。
+そして \hyper{本体} の最後の式の値が返される。
+左から右への評価と割り当ての順序にもかかわらず，
+\hyper{変数} のどの束縛も {\cf letrec*} 式全体をその領域\index{region}とする。
+これは相互再帰的な手続きを定義することを可能にしている。
+
+対応する \hyper{変数} の値を代入または参照なしに各 \hyper{初期値}
+または \hyper{束縛部} でその後に続く任意の束縛の\hyper{変数} 
+を評価できない場合，エラーである。
+もう一つの制約は，一回以上の \hyper{初期値} の継続を呼び出すことはエラーである。
+
+\begin{scheme}
+(letrec* ((p
+           (lambda (x)
+             (+ 1 (q (- x 1)))))
+          (q
+           (lambda (y)
+             (if (zero? y)
+                 0
+                 (+ 1 (p (- y 1))))))
+          (x (p 5))
+          (y x))
+  y)
+                \ev  5%
+\end{scheme}
+
+\begin{entry}{%
+\proto{let-values}{ \hyper{mv束縛仕様} \hyper{本体}}{\exprtype}}
+
+\syntax
+\hyper{mv束縛仕様} は次の形式をとる。
+\begin{scheme}
+((\hyperi{仮引数部} \hyperi{初期値}) \dotsfoo)\rm,%
+\end{scheme}
+
+ここで，各 \hyper{初期値} は式であり，
+\hyper{本体} は，\ref{lambda}節に記述されているような
+１個以上の式からなる列に続く０個以上の定義である。
+\hyper{仮引数部} の中に一つの変数が複数回現れることは
+エラーである。
+
+\semantics
+\hyper{初期値} が，{\cf call-with-values} を呼び出すかのように現在の環境で (ある未規定の順序で) 評価される。
+\hyper{仮引数部} で起こる変数は，\hyper{初期値}によって返される値を保持する新しい場所へ束縛される。
+ここで， \hyper{仮引数部} は，{\cf lambda} 式内の \hyper{仮引数部} が
+手続き呼び出し中の引数に照合されるのと同じ方法で戻り値に照合する。
+このとき，\hyper{本体} が拡張された環境の中で評価され， \hyper{本体} の最後の式の値が返される。
+\hyper{変数} のどの束縛も \hyper{本体} をその領域\index{region}とする。
+
+\hyper{仮引数部} が，対応する \hyper{初期値} によって返される値の数
+と一致しない場合，エラーである。
+
+\begin{scheme}
+(let-values (((root rem) (exact-integer-sqrt 32)))
+  (* root rem))                \ev  35%
+\end{scheme}
+
+\end{entry}
+
+
+\begin{entry}{%
+\proto{let*-values}{ \hyper{mv束縛仕様} \hyper{本体}}{\exprtype}}\nobreak
+
+\nobreak
+\syntax
+\hyper{mv束縛仕様} は次の形式をとる。
+\begin{scheme}
+((\hyper{仮引数部} \hyper{初期値}) \dotsfoo)\rm,%
+\end{scheme}
+そして \hyper{本体} は，\ref{lambda}節に記述されているような
+１個以上の式に続く０個以上の定義からなる列である。
+各 \hyper{仮引数部} の中に一つの変数が複数回現れることは
+エラーである。
+
+\semantics
+{\cf let*-values} コンストラクトは {\cf let-values} と似ているが，
+\hyper{初期値} は評価され，束縛は \hyper{本体} と同様にその右側に\hyper{初期値}を含んでいる
+各\hyper{仮引数部}の束縛の領域とともに，左から右へと順に作成される。
+したがって，二番目の \hyper{初期値} は
+束縛の最初の集合が可視で初期化されているような環境で評価される，などである。
+
+\begin{scheme}
+(let ((a 'a) (b 'b) (x 'x) (y 'y))
+  (let*-values (((a b) (values x y))
+                ((x y) (values a b)))
+    (list a b x y)))     \ev (x y x y)%
+\end{scheme}
+
+\end{entry}
+
+\end{entry}
+
+
+\subsection{逐次式}\unsection
+\label{sequencing}
+
+Scheme逐次コンストラクトは両方とも {\cf begin} と名付けられるが，
+二つはわずかに形式と用途が異なる。
+
+\begin{entry}{%
+\proto{begin}{ \hyper{式または定義} \dotsfoo}{\exprtype}}
+
+{\cf begin}の形式は， \hyper{本体} の一部として，または \hyper{プログラム} の最も外側のレベルに，
+またはREPLに，またはこの形式自身が{\cf begin}内に直接入れ子になって現れることができる。
+
+\begin{rationale}
+この形式は，複数の定義を生成するのとそれらが展開されている文脈に継ぎ合せるのに必要な
+マクロ(\ref{macrosection}節参照)の出力で一般的に使われる。
+\end{rationale}
+
+\end{entry}
+
+\begin{entry}{%
+\rproto{begin}{ \hyperi{式} \hyperii{式} \dotsfoo}{\exprtype}}
+
+{\cf begin} のこの形式は，通常の式として使うことができる。
+各 \hyper{式} が左から右へと順に評価され，最後の \hyper{式} の値が返される。
+この式型は，代入や入出力などの副作用を順序どおりに起こすために使われる。
+
+\begin{scheme}
+(define x 0)
+
+(and (= x 0)
+     (begin (set! x 5)
+            (+ x 1)))              \ev  6
+
+(begin (display "4 plus 1 equals ")
+       (display (+ 4 1)))      \ev  \unspecified
+ \>{\em および}  4 plus 1 equals 5 {\em を印字する}%
+\end{scheme}
+
+\end{entry}
+
+ここで，ライブラリ宣言として使われる {\cf begin} の第三の形式があることに注意せよ。
+\ref{librarydeclarations}節参照。
+
+\subsection{繰返し}%\unsection
+
+\noindent%
+\pproto{(do ((\hyperi{変数} \hyperi{初期値} \hyperi{ステップ})}{\exprtype}
+\mainschindex{do}{\tt\obeyspaces%
+     \dotsfoo)\\
+    (\hyper{テスト} \hyper{式} \dotsfoo)\\
+  \hyper{コマンド} \dotsfoo)}
+
+\syntax
+\hyper{初期値}, \hyper{ステップ}, \hyper{テスト}, および \hyper{コマンド} はすべて式である。
+
+\semantics
+{\cf do} 式は繰返しのコンストラクトである。
+これは束縛すべき変数の集合と，それらを繰返し開始時にどう初期化するか，
+そして繰返しごとにどう更新するかを規定する。
+終了条件が満たされた時，ループは各 \hyper{式} を評価して終わる。
+
+{\cf do} 式は次のように評価される。
+各 \hyper{初期値} 式が (ある未規定の順序で) 評価され，
+各 \hyper{変数} が新しい場所に束縛され，
+各 \hyper{初期値} 式の結果が各 \hyper{変数} の束縛に格納され，
+そして繰返しが始まる。
+
+\vest それぞれの繰返しは \hyper{テスト} を評価することで始まる。
+もしその結果が偽 (\ref{booleansection}節参照) ならば，
+副作用を期待して各 \hyper{コマンド} 式が順に評価され，
+各 \hyper{ステップ} 式がある未規定の順序で評価され，
+各 \hyper{変数} が新しい場所に束縛され，
+各 \hyper{ステップ} の結果が各 \hyper{変数} の束縛に格納され，
+そして次の繰返しが始まる。
+
+\vest もし \hyper{テスト} が真値へと評価されたならば，
+各 \hyper{式} が左から右へと評価され，
+最後の \hyper{式} の値が返される。
+もし \hyper{式} がないならば，その {\cf do} 式の値は未規定である。
+
+\vest \hyper{変数}の束縛の領域\index{region}は，
+全 \hyper{初期値} を除く {\cf do} 式全体である。
+{\cf do} 変数のリストの中に一つの \hyper{変数} が複数回現れることはエラーである。
+
+\vest \hyper{ステップ} を省略してもよい。このとき，
+その効果は，{\cf(\hyper{変数} \hyper{初期値})} では
+なく {\cf(\hyper{変数} \hyper{初期値} \hyper{変数})} と
+書いた場合と同じである。
+
+\begin{scheme}
+(do ((vec (make-vector 5))
+     (i 0 (+ i 1)))
+    ((= i 5) vec)
+  (vector-set! vec i i))          \ev  \#(0 1 2 3 4)
+
+(let ((x '(1 3 5 7 9)))
+  (do ((x x (cdr x))
+       (sum 0 (+ sum (car x))))
+      ((null? x) sum)))             \ev  25%
+\end{scheme}
+
+
+
+\begin{entry}{%
+\rproto{let}{ \hyper{変数} \hyper{束縛部} \hyper{本体}}{\exprtype}}
+
+\label{namedlet}
+\semantics
+``名前付き {\cf let}'' は \ide{let} の構文の一変種である。
+これは {\cf do} よりも一般性の高い繰返しコンストラクトを定めており，
+再帰を表現するために使うこともできる。
+その構文と意味は，
+\hyper{変数} が \hyper{本体} の中で，
+束縛変数を仮引数とし \hyper{本体} を本体とする手続きへと束縛される
+ことを除いては，通常の {\cf let} と同じである。
+したがって \hyper{変数} という名前の手続きを呼び出すことによって，
+\hyper{本体} の実行を繰り返すことができる。
+
+%                                              |  <-- right margin
+\begin{scheme}
+(let loop ((numbers '(3 -2 1 6 -5))
+           (nonneg '())
+           (neg '()))
+  (cond ((null? numbers) (list nonneg neg))
+        ((>= (car numbers) 0)
+         (loop (cdr numbers)
+               (cons (car numbers) nonneg)
+               neg))
+        ((< (car numbers) 0)
+         (loop (cdr numbers)
+               nonneg
+               (cons (car numbers) neg))))) %
+  \lev  ((6 1 3) (-5 -2))%
+\end{scheme}
+
+\end{entry}
+
+
+\subsection{遅延評価}\unsection
+
+\begin{entry}{%
+\proto{delay}{ \hyper{式}}{遅延ライブラリ構文}}
+
+\todo{Fix.}
+
+\semantics
+{\cf delay} コンストラクトは，
+{\em 遅延評価} (\defining{lazy evaluation}) または \defining{call by need} を
+実装するために，手続き \ide{force} とともに使われる。
+{\tt(delay~\hyper{式})} は{\em 約束} (\defining{promise}) と呼ばれるオブジェクトを返す。
+このオブジェクトは未来のある時点で \hyper{式} を評価して
+結果の値を ({\cf force} 手続きによって) 求めることができ，
+結果として得られた値を受渡す。
+\todo{consider removing unspecified effect}
+複数個の値を返す \hyper{式} の効果は未規定である。
+
+\end{entry}
+
+\begin{entry}{%
+\proto{delay-force}{ \hyper{式}}{遅延ライブラリ構文}}
+
+\todo{Fix.}
+
+\semantics
+式 {\cf (delay-force \var{variables})} は，概念的に {\cf (delay (force \var{expression}))} と似ているが，
+{\cf delay-force} の結果を強制することは事実上 {\cf (force \var{expression})} に対する末尾呼び出しになるが，
+{\cf (delay (force \var{expression}))} の結果を強制することは，そうではないかもしれない，
+という違いがある。
+したがって，繰り返し遅延アルゴリズムは
+{\cf delay} と {\cf force} の長い連鎖となる可能性があり，
+評価中に無制限のスペースを消費しないように {\cf delay-force} を使って書き換えることができる。
+
+\end{entry}
+
+\begin{entry}{%
+\proto{force}{ promise}{遅延ライブラリ手続き}}
+
+{\cf force} 手続きは， \ide{delay}, \ide{delay-force}, または
+\ide{make-promise} で作られた \var{promise} の値を強制する。\index{promise}
+もしも約束に対してなんら値が計算されていなければ，
+一つの値が計算されて返される。
+約束の値は，もしそれが二度目に強制された場合，
+以前に計算された値が返されるように，
+キャッシュ (または ``メモ化'') されなければならない。
+その結果，遅延式はパラメータ値と最初にその値を要求された {\cf force} への呼び出しの例外ハンドラを用いて評価される。
+\var{promise} が約束でない場合，そのまま返してもよい。
+
+\begin{scheme}
+(force (delay (+ 1 2)))   \ev  3
+(let ((p (delay (+ 1 2))))
+  (list (force p) (force p)))  
+                               \ev  (3 3)
+
+(define integers
+  (letrec ((next
+            (lambda (n)
+              (delay (cons n (next (+ n 1)))))))
+    (next 0)))
+(define head
+  (lambda (stream) (car (force stream))))
+(define tail
+  (lambda (stream) (cdr (force stream))))
+
+(head (tail (tail integers)))  
+                               \ev  2%
+\end{scheme}
+
+次の例は，Schemeへの遅延ストリームフィルタリングアルゴリズムの機械的変換である。
+コンストラクタへの各呼び出しは {\cf delay} で覆われ，デコンストラクタに渡される各引数は {\cf force} で覆われる。
+手続きの本体周辺で {\cf (delay-force ...)} を {\cf (delay (force ...))} の代わりに使用することは，
+{\cf force} が事実上そのような列を反復的に強制するので，
+増え続ける保留中の約束のシーケンスが使用可能な記憶領域を排出しないことを保証する。
+
+\begin{scheme}
+(define (stream-filter p? s)
+  (delay-force
+   (if (null? (force s)) 
+       (delay '())
+       (let ((h (car (force s)))
+             (t (cdr (force s))))
+         (if (p? h)
+             (delay (cons h (stream-filter p? t)))
+             (stream-filter p? t))))))
+
+(head (tail (tail (stream-filter odd? integers))))
+                               \ev 5%
+\end{scheme}
+
+{\cf delay}, {\cf force}, および {\cf delay-force} は主に
+機能的なスタイルで書かれたプログラムを対象としているので，
+以下の例は良いプログラミングスタイルを説明する意図はない。
+しかしそれらは，それが強制された回数に関係なくただ一つの値が約束のために計算されるという特性を示している。
+
+\begin{scheme}
+(define count 0)
+(define p
+  (delay (begin (set! count (+ count 1))
+                (if (> count x)
+                    count
+                    (force p)))))
+(define x 5)
+p                     \ev  {\it{}a promise}
+(force p)             \ev  6
+p                     \ev  {\it{}a promise, still}
+(begin (set! x 10)
+       (force p))     \ev  6%
+\end{scheme}
+
+{\cf delay}, {\cf force} および {\cf delay-force} の
+この意味論へのさまざまな拡張が，
+いくつかの実装でサポートされている:
+
+\begin{itemize}
+\item 約束ではないオブジェクトに対する {\cf force} の呼出しは，
+単にそのオブジェクトを返してよい。
+
+\item 約束をその強制された値から操作的に区別する手段が全くないという
+ケースがあってもよい。つまり，次のような式は，
+実装に依存して，\schtrue{} と \schfalse{} のどちらに評価されてもよい:
+
+\begin{scheme}
+(eqv? (delay 1) 1)          \ev  \unspecified
+(pair? (delay (cons 1 2)))  \ev  \unspecified%
+\end{scheme}
+
+\item 実装は，{\cf cdr} や {\cf *} のように，約束の値が特定の型の引数でのみで演算する手続き
+によって強制されるという ``暗黙の強制'' (implicit forcing) を実装してもよい。
+しかし，{\cf list} のように，引数に均一に演算する手続きは
+それらを強制してはいけない。
+
+\begin{scheme}
+(+ (delay (* 3 7)) 13)  \ev  \unspecified
+(car
+  (list (delay (* 3 7)) 13))    \ev {\it{}a promise}%
+\end{scheme}
+\end{itemize}
+\end{entry}
+
+\begin{entry}{%
+\proto{promise?} { \var{obj}}{遅延ライブラリ手続き}}
+
+{\cf promise?} 手続きは，
+その引数が約束の場合 \schtrue{} を返し，それ以外の場合 \schfalse{} を返す。
+約束は，手続きのような他の Scheme 型から必ずしも分離的ではないことに注意せよ。
+
+\end{entry}
+
+\begin{entry}{%
+\proto{make-promise} { \var{obj}}{遅延ライブラリ手続き}}
+
+{\cf make-promise} 手続きは，
+強制されたときに \var{obj} を返すような約束を返す。
+これは {\cf delay} と似ているが，その引数を遅延しない: それは構文よりも手続きである。
+\var{obj} が既に約束であれば，それが返される。
+
+\end{entry}
+
+\subsection{動的束縛}\unsection
+
+手続き呼び出しの動的寿命 (\defining{dynamic extent}) は，
+それが開始されてから返されるまでの時間である。
+Scheme では，{\cf call-with-current-continuation} (\ref{continuations}節)は
+その手続き呼び出しが返された後に動的寿命に再び入ることを許可する。
+したがって，呼び出しの動的寿命は単一の連続した時間帯ではないかもしれない。
+
+本節では，動的寿命の期間中，新しい値に束縛できるパラメータオブジェクト (\defining{parameter objects}) を紹介する。
+与えられた時間におけるすべてのパラメータ束縛の集合は，動的環境 (\defining{dynamic environment}) と呼ばれる。
+
+\begin{entry}{%
+\proto{make-parameter}{ init}{手続き}
+\rproto{make-parameter}{ init converter}{手続き}}
+
+新たに割り当てられたパラメータオブジェクトを返す。
+それは０個の引数を受け入れてパラメータオブジェクトに関連付けられた値を返す手続きである。
+まず，変換手続き \var{converter} が指定されていない場合，
+この値は{\cf (\var{converter} \var{init})} または \var{init}の値である。
+関連付けられた値は，以下に記載された {\cf parameterize} を用いて，一時的に変更できる。
+
+パラメータオブジェクトに引数を渡す効果は実装依存である。
+\end{entry}
+
+\begin{entry}{%
+\pproto{(parameterize ((\hyperi{パラメータ} \hyperi{値}) \dotsfoo)}{構文}
+{\tt\obeyspaces%
+\hspace*{1em}\hyper{本体})}}
+\mainschindex{parameterize}
+
+\syntax
+\hyperi{パラメータ} および \hyperi{値} は，両方とも式である。
+
+\domain{任意の \hyper{パラメータ} 式の値がパラメータオブジェクトでなければ，エラーである。}
+\semantics
+{\cf parameterize} 式は，本体の評価時に指定したパラメータオブジェクトによって返される値を変更するのに使われる。
+
+\hyperi{パラメータ} および \hyperi{値} 式は未規定の順序で評価される。
+\hyper{本体} は，パラメータ作成時に，対応する値を指定された変換手続きに渡した結果を
+パラメータが返すように呼び出している動的環境で評価される。
+このとき，パラメータの前の値は，それらを変換手続きへ渡すことなく復元される。
+\hyper{本体} 中の最後の式の結果が，{\cf parameterize} 式全体の結果として返される。
+
+\begin{note}
+変換手続きが冪等でない場合，パラメータ \var{x} をその現在値に束縛することを表す
+{\cf (parameterize ((x (x))) ...)}
+の結果は，ユーザが期待するものではないかもしれない。
+\end{note}
+
+実装が複数の実行スレッドをサポートする場合，{\cf parameterize} は，
+現在のスレッドと \hyper{本体} 内で作られたスレッド以外のスレッドで
+任意のパラメータの関連付けられた値を変更してはいけない。
+
+パラメータオブジェクトは，
+明示的に呼び出しチェーン内のすべての手続きに値を渡すことを必要としないで
+計算のための構成可能な設定を指定するのに使うことができる。
+
+\begin{scheme}
+(define radix
+  (make-parameter
+   10
+   (lambda (x)
+     (if (and (exact-integer? x) (<= 2 x 16))
+         x
+         (error "invalid radix")))))
+
+(define (f n) (number->string n (radix)))
+
+(f 12)                                       \ev "12"
+(parameterize ((radix 2))
+  (f 12))                                    \ev "1100"
+(f 12)                                       \ev "12"
+
+(radix 16)                                   \ev \unspecified
+
+(parameterize ((radix 0))
+  (f 12))                                    \ev \scherror%
+\end{scheme}
+\end{entry}
+
+
+\subsection{例外処理}\unsection
+
+\begin{entry}{%
+\pproto{(guard (\hyper{変数}}{\exprtype}
+{\tt\obeyspaces%
+\hspace*{4em}\hyperi{cond節} \hyperii{cond節} \dotsfoo)\\
+\hspace*{2em}\hyper{本体})}\\
+}
+\mainschindex{guard}
+
+\syntax
+各 \hyper{cond節} は， {\cf cond} の指定と同様である。
+
+\semantics
+\hyper{本体} は，その束縛スコープ内で発生させたオブジェクト(\ref{exceptionsection}節の\ide{raise}参照)を
+\hyper{変数} に束縛して {\cf cond} 式の節であるかのように節を評価する
+例外ハンドラで評価される。
+暗黙の {\cf cond} 式は，継続と {\cf guard} 式の動的環境で評価される。
+すべての \hyper{cond節} の \hyper{テスト} が \schfalse{} に評価され，else 節がない場合，
+{\cf raise-continuable} は，
+現在の例外ハンドラが {\cf guard} 式のものであることを除いて，
+{\cf raise} または {\cf raise-continuable} の
+元の呼び出しの動的環境で発生させたオブジェクトに対して呼び出される。
+
+例外のより完全な議論については，\ref{exceptionsection}節を見よ。
+
+\begin{scheme}
+(guard (condition
+         ((assq 'a condition) => cdr)
+         ((assq 'b condition)))
+  (raise (list (cons 'a 42))))
+\ev 42
+
+(guard (condition
+         ((assq 'a condition) => cdr)
+         ((assq 'b condition)))
+  (raise (list (cons 'b 23))))
+\ev (b . 23)%
+\end{scheme}
+\end{entry}
+
+
+\subsection{準引用}\unsection
+\label{quasiquotesection}
+
+\begin{entry}{%
+\proto{quasiquote}{ \hyper{qqテンプレート}}{\exprtype} \nopagebreak
+\pproto{\backquote\hyper{qqテンプレート}}{\exprtype}
+\pproto{unquote}{\auxiliarytype}
+\pproto{\comma}{\auxiliarytype}
+\pproto{unquote-splicing}{\auxiliarytype}
+\pproto{\commaatsign}{\auxiliarytype}}
+
+``準引用''式\index{backquote}は，
+リストまたはベクタのあるべき構造が前もっていくつか分かっているが，ただし
+完全にではない場合に，そのリストまたはベクタ構造を構築するのに有用である。
+もしコンマ\index{comma}が \hyper{qqテンプレート} の中に一つも現れていなければ，
+\backquote\hyper{qqテンプレート} を評価した
+結果は \singlequote\hyper{qqテンプレート} を評価した結果と等価である。
+しかし，もしコンマ\mainschindex{,}が \hyper{qqテンプレート} の中に
+現れているならば，そのコンマに続く式が評価され (``unquote'' され)，
+そしてその結果がコンマと式のかわりに構造の中に挿入される。
+もしコンマの後に空白が間に入ることなく
+アットマーク (\atsign)\mainschindex{,@} が続くならば，
+それに続く式はリストへと評価されなければならない。
+この場合，そのリストの両端の丸カッコが``はぎとられ''，
+リストの各要素が コンマ-アットマーク-式 の列の位置に挿入される。
+コンマ-アットマークは，通常リストまたはベクタの \hyper{qqテンプレート} の中に
+だけ現れる。
+
+\begin{note}
+コンマ-アットマーク 列との衝突を避けるため，
+{\cf @} で始まる識別子を unquote　するのに
+明示的な {\cf unquote} の使用，あるいは コンマの後に空白を置くことが必要である。
+\end{note}
+
+\begin{scheme}
+`(list ,(+ 1 2) 4)  \ev  (list 3 4)
+(let ((name 'a)) `(list ,name ',name)) %
+          \lev  (list a (quote a))
+`(a ,(+ 1 2) ,@(map abs '(4 -5 6)) b) %
+          \lev  (a 3 4 5 6 b)
+`(({\cf foo} ,(- 10 3)) ,@(cdr '(c)) . ,(car '(cons))) %
+          \lev  ((foo 7) . cons)
+`\#(10 5 ,(sqrt 4) ,@(map sqrt '(16 9)) 8) %
+          \lev  \#(10 5 2 4 3 8)
+(let ((foo '(foo bar)) (@baz 'baz))
+  `(list ,@foo , @baz))%
+          \lev  (list foo bar baz)%
+\end{scheme}
+
+準引用式は入れ子にすることができる。
+置換は，最も外側の準引用と同じ入れ子レベルで現れる被 unquote 要素に
+対してだけ行われる。
+入れ子レベルは，準引用に入って行くたびに１だけ増え，
+unquote される要素に入って行くたびに１だけ減る。
+
+\begin{scheme}
+`(a `(b ,(+ 1 2) ,(foo ,(+ 1 3) d) e) f) %
+          \lev  (a `(b ,(+ 1 2) ,(foo 4 d) e) f)
+(let ((name1 'x)
+      (name2 'y))
+  `(a `(b ,,name1 ,',name2 d) e)) %
+          \lev  (a `(b ,x ,'y d) e)%
+\end{scheme}
+
+準引用式は，新たに割り当てられた書換え可能オブジェクト，または
+式の評価中に実行時に構築された任意の構造のリテラル構造を返してもよい。
+再ビルドが必要ない部分は，常にリテラルである。
+したがって，
+
+\begin{scheme}
+(let ((a 3)) `((1 2) ,a ,4 ,'five 6))%
+\end{scheme}
+
+は，次の式のいずれかと等価に扱われてもよい:
+
+\begin{scheme}
+`((1 2) 3 4 five 6)
+
+(let ((a 3))
+  (cons '(1 2)
+        (cons a (cons 4 (cons 'five '(6))))))%
+\end{scheme}
+
+しかし，この式とは等価ではない:
+
+\begin{scheme}
+(let ((a 3)) (list (list 1 2) a 4 'five 6))%
+\end{scheme}
+
+\backquote\hyper{qqテンプレート} と {\tt (quasiquote 
+\hyper{qqテンプレート})} の二つの表記はすべての点で同一である。
+{\cf,\hyper{式}} は {\cf (unquote \hyper{式})} と同一である。
+{\cf,@\hyper{式}} は {\cf (unquote-splicing \hyper{式})} と同一である。
+\ide{write} 手続きは，どちらの形式を出力してもよい。
+\mainschindex{`}
+
+\begin{scheme}
+(quasiquote (list (unquote (+ 1 2)) 4)) %
+          \lev  (list 3 4)
+'(quasiquote (list (unquote (+ 1 2)) 4)) %
+          \lev  `(list ,(+ 1 2) 4)
+     {\em{}i.e.,} (quasiquote (list (unquote (+ 1 2)) 4))%
+\end{scheme}
+
+
+もし識別子 {\cf quasiquote}, {\cf unquote}, {\cf unquote-splicing} の
+どれかが，上に述べたような位置以外のところで \hyper{qqテンプレート} の
+中に現れている場合は，エラーである。
+
+\end{entry}
+
+\subsection{case-lambda}\unsection
+\label{caselambdasection}
+\begin{entry}{%
+\proto{case-lambda}{ \hyper{節} \dotsfoo}{case-lambdaライブラリ構文}}
+
+\syntax
+各 \hyper{節} は次の形式である。
+(\hyper{仮引数部} \hyper{本体}),
+ここで， \hyper{仮引数部} および \hyper{本体} は \lambdaexp と同じ構文をもつ。
+
+\semantics
+{\cf case-lambda} 式は，可変個の引数を受け入れ，\lambdaexp に起因する手続きと同様に字句的にスコープされる手続きに評価する。
+手続きが呼び出されると，\hyper{仮引数部} に一致する引数をもつ最初の \hyper{節} が選択される。
+ここで一致は \lambdaexp の \hyper{仮引数部} として指定される。
+\hyper{仮引数部} の変数は新しい場所に束縛され，
+引数の値はそれらの場所に格納され，
+\hyper{本体} は拡張された環境で評価され，
+\hyper{本体} の結果は，手続き呼び出しの結果として返される。
+
+任意の節に \hyper{仮引数部} が一致しない場合は，引数のエラーである。
+
+\begin{scheme}
+(define range
+  (case-lambda
+   ((e) (range 0 e))
+   ((b e) (do ((r '() (cons e r))
+               (e (- e 1) (- e 1)))
+              ((< e b) r)))))
+
+(range 3)    \ev (0 1 2)
+(range 3 5)  \ev (3 4)%
+\end{scheme}
+
+\end{entry}
+
+\section{マクロ}
+\label{macrosection}
+
+Scheme プログラムは新しい派生式型を定義して使用することができる。
+この式型を{\em マクロ} ({\em macro}\/) と呼ぶ。\mainindex{macro}
+プログラムで定義される式型は次の構文をとる。
+\begin{scheme}
+(\hyper{キーワード} {\hyper{データ}} ...)%
+\end{scheme}%
+ここで \hyper{キーワード} はその式型を一意的に決定する識別子である。
+この識別子をマクロの{\em 構文キーワード}\index{syntactic keyword}
+または単に{\em キーワード}\index{keyword}と呼ぶ。\index{macro keyword}
+\hyper{データ} の個数とその構文はその式型に依存する。
+
+マクロのインスタンスはそれぞれ，
+そのマクロの{\em 使用} ({\em use}\/) \index{macro use}と呼ばれる。
+あるマクロの使用がより原始的な式へとどのように変換されるのかを
+規定する規則の集合を，そのマクロの{\em 変換子} ({\em transformer}\/) と
+呼ぶ。\index{macro transformer}
+
+マクロ定義の手段は二つの部分からなる。
+
+\begin{itemize}
+\item 特定の識別子がマクロキーワードであることを確立し，
+それらをマクロ変換子と結合させ，
+そしてマクロが定義されるスコープを制御する，
+ということのために使われる式の集合
+
+\item マクロ変換子を規定するためのパターン言語
+\end{itemize}
+
+マクロの構文キーワードが変数束縛を隠蔽してもよいし，
+ローカル変数束縛がキーワード構文束縛を隠蔽してもよい。\index{keyword}
+二つのメカニズムは意図しない衝突を防止するために設けられている。
+
+\begin{itemize}
+
+\item マクロ変換子が，ある識別子 (変数またはキーワード) に対する束縛を
+挿入するとき，その識別子は，他の識別子との衝突を避けるために，
+そのスコープ全体にわたって実質的に改名される。
+グローバル変数定義は束縛を導入してもしなくてもよい
+ことに注意せよ (\ref{defines}節参照)。
+
+\item マクロ変換子が，ある識別子への自由な参照を挿入するとき，
+その参照は，そのマクロ使用を取り囲むローカル束縛には一切関係なく，
+もともとその変換子が規定された箇所で可視だった束縛を参照する。
+
+\end{itemize}
+
+結果として，
+パターン言語を使って定義されるすべてのマクロ
+は ``保健的'' (hygienic) かつ ``参照透過的'' (referentially transparent) で
+あり，したがって Scheme の字句的スコーピングを侵さない。\cite{Kohlbecker86,
+hygienic,Bawden88,macrosthatwork,syntacticabstraction}
+\mainindex{hygienic}\mainindex{referentially transparent}
+
+実装は，他の型のマクロ手段を提供してもよい。
+
+\subsection{構文キーワードのための束縛コンストラクト}
+\label{bindsyntax}
+
+{\cf let-syntax} と {\cf letrec-syntax} 束縛コンストラクトは，
+{\cf let} と {\cf letrec} に相当するが，
+変数を値の保持場所に束縛するかわりに，構文キーワードをマクロ変換子に束縛する。
+構文キーワードを
+大域的または {\cf define-syntax} で局所的に束縛することもできる。
+\ref{define-syntax}節を見よ。
+
+\begin{entry}{%
+\proto{let-syntax}{ \hyper{束縛部} \hyper{本体}}{\exprtype}}
+
+\syntax
+\hyper{束縛部} は次の形式をもつ。
+\begin{scheme}
+((\hyper{キーワード} \hyper{変換子仕様}) \dotsfoo)%
+\end{scheme}
+各 \hyper{キーワード} は識別子である。
+各 \hyper{変換子仕様} は {\cf syntax-rules} のインスタンスである。
+\hyper{本体} は１個以上の定義に続く１個以上の式からなる列であること。
+束縛されるキーワードの並びの中に一つの \hyper{キーワード} が複数回現れることは
+エラーである。
+
+\semantics
+{\cf let-syntax} 式の構文環境をマクロで拡張することによって得られる
+構文環境の中で，\hyper{本体} が展開される。
+ただし，それらのマクロはそれぞれ \hyper{キーワード} をキーワードとし，
+仕様が規定する変換子に束縛されている。
+各 \hyper{キーワード} の束縛は \hyper{本体} をその領域とする。
+
+\begin{scheme}
+(let-syntax ((given-that (syntax-rules ()
+                     ((given-that test stmt1 stmt2 ...)
+                      (if test
+                          (begin stmt1
+                                 stmt2 ...))))))
+  (let ((if \schtrue))
+    (given-that if (set! if 'now))
+    if))                           \ev  now
+
+(let ((x 'outer))
+  (let-syntax ((m (syntax-rules () ((m) x))))
+    (let ((x 'inner))
+      (m))))                       \ev  outer%
+\end{scheme}
+
+\end{entry}
+
+\begin{entry}{%
+\proto{letrec-syntax}{ \hyper{束縛部} \hyper{本体}}{\exprtype}}
+
+\syntax
+{\cf let-syntax} と同じである。
+
+\semantics
+{\cf letrec-syntax} 式の構文環境をマクロで拡張することによって得られる
+構文環境の中で，\hyper{本体} が展開される。
+ただし，それらのマクロはそれぞれ \hyper{キーワード} をキーワードとし，
+仕様が規定する変換子に束縛されている。
+各 \hyper{キーワード} の束縛は，
+\hyper{本体} ばかりでなく \hyper{変換子仕様} をもその領域とするから，
+変換子は式を，{\cf letrec-syntax} 式が導入するマクロの使用へと変換できる。
+
+\begin{scheme}
+(letrec-syntax
+    ((my-or (syntax-rules ()
+              ((my-or) \schfalse)
+              ((my-or e) e)
+              ((my-or e1 e2 ...)
+               (let ((temp e1))
+                 (if temp
+                     temp
+                     (my-or e2 ...)))))))
+  (let ((x \schfalse)
+        (y 7)
+        (temp 8)
+        (let odd?)
+        (if even?))
+    (my-or x
+           (let temp)
+           (if y)
+           y)))        \ev  7%
+\end{scheme}
+
+\end{entry}
+
+\subsection{パターン言語}
+\label{patternlanguage}
+
+\hyper{変換子仕様} は次のうちいずれか一つの形式をとる。
+
+\begin{entry}{%
+\pproto{(syntax-rules (\hyper{リテラル部} \dotsfoo)}{\exprtype}
+{\tt\obeyspaces%
+\hspace*{1em}\hyper{構文規則} \dotsfoo)\\
+}
+\pproto{(syntax-rules \hyper{省略符号} (\hyper{リテラル部} \dotsfoo)}{\exprtype}
+{\tt\obeyspaces%
+\hspace*{1em}\hyper{構文規則} \dotsfoo)}\\
+\pproto{\_}{\auxiliarytype}
+\pproto{\dotsfoo}{\auxiliarytype}}
+\mainschindex{_}
+
+\syntax
+任意の \hyper{リテラル部}，または二番目の形式の \hyper{省略符号} が識別子でなければエラーである。
+また， \hyper{構文規則} が
+\begin{scheme}
+(\hyper{パターン} \hyper{テンプレート})%
+\end{scheme}
+の形式でなければエラーである。
+\hyper{構文規則} におかれる \hyper{パターン} は，
+最初の要素が識別子であるリスト \hyper{パターン} である。
+
+\hyper{パターン} は識別子，定数，または次の一つである。
+\begin{scheme}
+(\hyper{パターン} \ldots)
+(\hyper{パターン} \hyper{パターン} \ldots . \hyper{パターン})
+(\hyper{パターン} \ldots \hyper{パターン} \hyper{省略符号} \hyper{パターン} \ldots)
+(\hyper{パターン} \ldots \hyper{パターン} \hyper{省略符号} \hyper{パターン} \ldots
+  . \hyper{パターン})
+\#(\hyper{パターン} \ldots)
+\#(\hyper{パターン} \ldots \hyper{パターン} \hyper{省略符号} \hyper{パターン} \ldots)%
+\end{scheme}
+そして \hyper{テンプレート} は識別子，定数，または次の一つである。
+\begin{scheme}
+(\hyper{要素} \ldots)
+(\hyper{要素} \hyper{要素} \ldots . \hyper{テンプレート})
+(\hyper{省略符号} \hyper{テンプレート})
+\#(\hyper{要素} \ldots)%
+\end{scheme}
+ここで， \hyper{要素} は任意の \hyper{省略符号} が続く
+一つの \hyper{テンプレート} である。
+\hyper{省略符号} は， {\cf syntax-rules} の二番目の形式で指定された識別子，
+あるいはそれ以外の場合，デフォルトの識別子 ``{\cf ...}''
+(三つの連続するピリオド)である。\schindex{...}
+
+\semantics 
+{\cf syntax-rules} のインスタンスは，
+保健的な書換え規則の列を規定することによって，新しいマクロ変換子を生成する。
+マクロの使用は，
+そのキーワードと結合している変換子を規定する {\cf syntax-rules} の，
+各 \hyper{構文規則} に収められたパターンに対して照合される。
+照合は最左の \hyper{構文規則} から開始される。
+照合が見つかった時，マクロ使用は，テンプレートに従って保健的に変換される。
+
+パターン内に現れる識別子は，アンダースコア
+({\cf \_})，\hyper{リテラル}のリストに記載されているリテラル識別子，
+または\hyper{省略符号}のいずれかにできる。
+\hyper{パターン} に現れる他の識別子はすべて{\em パターン変数}である。
+
+\hyper{構文規則} のパターンの先頭にあるキーワードは，照合に関与せず，
+それはパターン変数ともリテラル識別子とも見なされない。
+
+パターン変数は，任意の入力要素と照合し，
+入力の各要素をテンプレートの中で参照するために使われる。
+\hyper{パターン} の中に同じパターン変数が複数回現れることはエラーである。
+
+アンダースコアもまた，任意の入力要素と照合するが，
+パターン変数ではなく，これらの要素を参照するためには使われない。
+もしアンダースコアが \hyper{リテラル} のリストに現れた場合は，順位をとり
+\hyper{パターン} の中のアンダースコアは，リテラルとして照合する。
+複数のアンダースコアは \hyper{パターン} の中に現れることができる。
+
+\texttt{(\hyper{リテラル部} \dotsfoo)} に現れる識別子は，リテラル識別子と解釈される。
+これは入力からの対応する要素と照合されることになる。
+入力における要素がリテラル識別子と照合するための必要十分条件は，
+それが識別子であって，かつそれのマクロ式における出現とマクロ定義における出現が
+ともに同じ字句的束縛をもつか，
+あるいは二つの識別子が同じかつどちらも字句的束縛をもたないことである。
+
+\hyper{省略符号} が後続する部分形式は，
+リテラルとして照合する \hyper{省略符号} が \hyper{リテラル} の中に現れない限り，
+入力の０個以上の要素と照合できる。
+
+より形式的には，入力式 $E$はパターンの $P$ が次の場合に限り照合する。
+
+\begin{itemize}
+\item $P$ がアンダースコア({\cf \_})である。
+
+\item $P$ がリテラル識別子でない識別子である。または
+
+\item $P$ がリテラル識別子であり，かつ $E$ が同じ束縛をもつ識別子である。または
+
+\item $P$ がリスト {\cf ($P_1$ $\dots$ $P_n$)} であり，
+      かつ $E$ が，$P_1$ から $P_n$ までそれぞれ照合する $n$ 個の要素から
+      なるリストである。または
+
+\item $P$ が非真正リスト {\cf ($P_1$ $P_2$ $\dots$ $P_n$ . $P_{n+1}$)} であり，
+      かつ $E$ が，$P_1$ から $P_n$ までそれぞれ照合する $n$ 個以上の
+      要素からなるリストまたは非真正リストであって，
+      かつその $n$ 番目の末尾が $P_{n+1}$ に照合する。または
+
+\item $P$ が次の形式である。
+      {\cf ($P_1$ $\dots$ $P_k$ $P_e$ \meta{省略符号} $P_{m+1}$ \dotsfoo{} $P_n$)}
+      ここで $E$ は
+      最初の $k$ 個がそれぞれ $P_1$ から $P_k$ まで照合し，
+      次の $m-k$ 個の要素がそれぞれ $P_e$ に照合し，
+      残りの $n-m$ 個の要素がそれぞれ $P_{m+1}$ から $P_n$ までそれぞれ照合する，
+      $n$ 個の要素からなる真正リストである。または
+
+\item $P$ が次の形式である。
+      {\cf ($P_1$ $\dots$ $P_k$ $P_{e}$ \meta{省略符号} $P_{m+1}$ \dotsfoo{} $P_n$ . $P_x$)}
+      ここで $E$ は
+      最初の $k$ 個がそれぞれ $P_1$ から $P_k$ まで照合し，
+      次の $m-k$ 個の要素がそれぞれ $P_e$ に照合し，
+      残りの $n-m$ 個の要素がそれぞれ $P_{m+1}$ から $P_n$ までそれぞれ照合し，
+      かつ，その $n$ 番目 と最後の cdr が $P_x$ に照合する，
+      $n$ 個の要素からなる非真正リストである。または
+
+\item $P$ が {\cf \#($P_1$ $\dots$ $P_n$)} という形式のベクタであり，
+      かつ $E$ が，$P_1$ から $P_n$ まで照合する $n$ 個の要素からなる
+      ベクタである。または
+
+\item $P$ が次の形式である。
+      {\cf \#($P_1$ $\dots$ $P_k$ $P_{e}$ \meta{省略符号} $P_{m+1}$ \dotsfoo $P_n$)}
+      ここで  $E$ は
+      最初の $k$ 個がそれぞれ $P_1$ から $P_k$ まで照合し，
+      次の $m-k$ 個の要素がそれぞれ $P_e$ に照合し，
+      残りの $n-m$ 個の要素がそれぞれ $P_{m+1}$ から $P_n$ までそれぞれ照合する，
+      $n$ 個の要素からなるベクタである。または
+
+\item $P$ が定数であり，かつ $E$ が $P$ と {\cf equal?} 手続きの意味で
+      等しい。
+\end{itemize}
+
+マクロキーワードを，その束縛のスコープの内部で，
+どのパターンとも照合しない式に使用することは，エラーである。
+
+マクロ使用がそれと照合する \hyper{構文規則} のテンプレートに従って
+変換される時，テンプレートに出現するパターン変数は，
+入力において照合した要素で置き換えられる。
+識別子 \hyper{省略符号} のインスタンスが１個以上後続している部分パターンの中に
+出現するパターン変数は，同数の \hyper{省略符号} のインスタンスが後続している
+部分テンプレートの中にだけ出現を許可される。
+出力においてそれらは，入力においてそれらが照合した要素全部によって，
+ただし指示どおりに分配されて，置き換えられる。
+仕様どおりに出力を形成できない場合はエラーである。
+
+%%% This description of output construction is very vague.  It should
+%%% probably be formalized, but that is not easy...
+
+テンプレートに現れているがパターン変数でも識別子 \hyper{省略符号} でもない識別子は，
+リテラル識別子として出力に挿入される。
+もしリテラル識別子が自由識別子として挿入されるならば，その場合，
+その識別子の束縛であって，かつ元々の {\cf syntax-rules} のインスタンスが
+現れている箇所を含んでいるようなスコープの束縛が参照される。
+もしリテラル識別子が束縛識別子として挿入されるならば，その場合，
+その識別子は，自由識別子の不慮の取り込みを防ぐために実質的に改名される。
+
+形式のテンプレート
+{\cf (\hyper{省略符号} \hyper{テンプレート})} は，
+テンプレート内の省略符号が特別な意味を持たないこと
+を除いて\hyper{テンプレート}と同じである。
+すなわち，\hyper{テンプレート}内に含まれるの任意の省略符号は，
+通常の識別子として扱われる。
+特に，テンプレート {\cf (\hyper{省略符号} \hyper{省略符号})} は
+単一の \hyper{省略符号} を生成する。
+これは省略符号を含むコードに拡張するための構文上の抽象化を許可する。
+
+\begin{scheme}
+(define-syntax be-like-begin
+  (syntax-rules ()
+    ((be-like-begin name)
+     (define-syntax name
+       (syntax-rules ()
+         ((name expr (... ...))
+          (begin expr (... ...))))))))
+
+(be-like-begin sequence)
+(sequence 1 2 3 4) \ev 4%
+\end{scheme}
+
+一例として，もし \ide{let} と \ide{cond} が\ref{derivedsection}節のように
+定義されているならば，そのときそれらは (要求どおり) 保健的であり，
+下記はエラーにならない。
+
+\begin{scheme}
+(let ((=> \schfalse))
+  (cond (\schtrue => 'ok)))           \ev ok%
+\end{scheme}
+
+{\cf cond} のマクロ変換子は {\cf =>} をローカル変数として，
+したがって一つの式として認識する。
+マクロ変換子が構文キーワードとして扱う基本識別子 {\cf =>} としては
+認識しない。
+したがって，この例は
+
+\begin{scheme}
+(let ((=> \schfalse))
+  (if \schtrue (begin => 'ok)))%
+\end{scheme}
+
+のように展開されるのであって，不正な手続き呼出しに終わることになる
+
+\begin{scheme}
+(let ((=> \schfalse))
+  (let ((temp \schtrue))
+    (if temp ('ok temp))))%
+\end{scheme}
+
+とはならない。
+
+\end{entry}
+
+\subsection{マクロ変換子でのエラー通知}
+
+
+\begin{entry}{%
+\pproto{(syntax-error \hyper{メッセージ} \hyper{引数} \dotsfoo)}{\exprtype}}
+\mainschindex{syntax-error}
+
+{\cf syntax-error} は，評価とは別の拡張パスでの実装が
+すぐに{\cf syntax-error}展開されているようにエラーを通知すべきであること
+を除いて，{\cf error} (\ref{exceptionsection})と同じように振舞う。
+これはマクロの不正使用である \hyper{パターン} のために
+{\cf syntax-rules} \hyper{テンプレート}として使することができ，
+より説明的なエラーメッセージを提供することができる。
+\hyper{メッセージ} は文字列リテラルであり，\hyper{引数} は追加情報を提供する任意の式である。
+アプリケーションでは，例外ハンドラやガードで構文エラーを捕捉することができることを頼りにすることはできない。
+
+\todo{Shinn: This doesn't check all non-identifier cases, think of a better example.}
+
+\begin{scheme}
+(define-syntax simple-let
+  (syntax-rules ()
+    ((\_ (head ... ((x . y) val) . tail)
+        body1 body2 ...)
+     (syntax-error
+      "expected an identifier but got"
+      (x . y)))
+    ((\_ ((name val) ...) body1 body2 ...)
+     ((lambda (name ...) body1 body2 ...)
+       val ...))))%
+\end{scheme}
+
+\end{entry}
+

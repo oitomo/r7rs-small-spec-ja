@@ -1,0 +1,173 @@
+\clearextrapart{はじめに}
+
+\label{historysection}
+
+プログラミング言語の設計は，機能の上に機能を積み重ねることによってではなく，
+余分な機能が必要であるように思わせている弱点と制限を取り除くことによって
+なされるべきである。
+式をつくるための規則が少数しかなくても，その組み合わせ方法に全く制限が
+なければ，今日使われている主要なプログラミングパラダイムのほとんどを
+サポートするのに十分なだけの柔軟性を備えた実用的で効率的なプログラミング言語
+を満足につくり上げられることを，Scheme は実証している。
+
+Scheme は，ラムダ計算におけるようなファーストクラスの手続きを具体化した初めての
+プログラミング言語の一つであった。そしてそれによって，
+動的に型付けされる言語での静的スコープ規則とブロック構造の有用性を証明した。
+Scheme は，手続きをラムダ式とシンボルから区別し，
+すべての変数に対し単一の字句的環境を使用し，
+手続き呼出しの演算子の位置をオペランドの位置と同じように評価する
+初めての主要な Lisp 方言であった。
+全面的に手続き呼出しによって繰返しを表現することで，Scheme は，末尾再帰の
+手続き呼出しが本質的には引数を渡す GOTO であるという事実を強調し，
+こうしてコヒーレントかつ効率的なプログラミングスタイルを可能にした。
+Scheme は，ファーストクラスの脱出手続きを採用した
+初めての広く使われたプログラミング言語であった。
+この脱出手続きから，すべての既知の逐次的制御構造が合成できる。
+後の版の Scheme は，正確数と不正確数の概念を導入した。
+これは Common Lisp の総称的算術演算の拡張である。
+最近になって Scheme は，保健的マクロ (hygienic macro) % \footnote{
+% 訳注： hygienic について。
+%健康の女神 Hygeia と共通の語源をもつこの語は「衛生的」と訳されることが多いが，
+%ここではマクロ展開時の名前の衝突を自動的に回避することによって
+%展開の\underline{健}全さを\underline{保}つことを言い表すために
+%使われているから「保健的」とした。}
+をサポートした初めてのプログラミング言語になった。保健的マクロは，
+ブロック構造をもった言語の構文を矛盾なく信頼性をもって拡張することを
+可能にする。
+\todo{Ramsdell:
+I would like to make a few comments on presentation.  The most
+important comment is about section organization.  Newspaper writers
+spend most of their time writing the first three paragraphs of any
+article.  This part of the article is often the only part read by
+readers, and is important in enticing readers to continue.  In the
+same way, The first page is most likely to be the only page read by
+many SIGPLAN readers.  If I had my choice of what I would ask them to
+read, it would be the material in section 1.1, the Semantics section
+that notes that scheme is lexically scoped, tail-recursive, weakly
+typed, ... etc.  I would expand on the discussion on continuations,
+as they represent one important difference between Scheme and other
+languages.  The introduction, with its history of scheme, its history
+of scheme reports and meetings, and acknowledgments giving names of
+people that the reader will not likely know, is not that one page I
+would like all to read.  I suggest moving the history to the back of
+the report, and use the first couple of pages to convince the reader
+that the language documented in this report is worth studying.
+}
+
+\subsection*{背景}
+
+\vest Scheme の最初の記述は 1975 年に書かれた\cite{Scheme75}。
+改訂報告書は 1978 年に発表された\cite{Scheme78}。
+改訂報告書は，MIT の実装が革新的なコンパイラ\cite{Rabbit}をサポートするために
+改良されたことに合わせて，その言語の進化を記述した。
+1981 年と 1982 年には三つの個別のプロジェクトが MIT，Yale および Indiana 大学
+で講座に Scheme 類を用いるために始まった\cite{Rees82,MITScheme,Scheme311}。
+Scheme を用いた計算機科学入門の教科書が 1984 年に出版された\cite{SICP}。
+
+\vest Scheme が広まるにつれ，ローカルな方言が分かれはじめ，学生や研究者が
+他のサイトで書かれたコードの理解にしばしば困難をおぼえるまでになってきた。
+そこで，Scheme のより良い，より広く受け入れられる標準に向けて作業するため，
+Scheme の主要な実装の代表者 15 人が 1984 年 10 月に会合した。
+その報告書，RRRS~\cite{RRRS} は
+1985 年の夏に MIT と Indiana 大学で出版された。
+さらに 1986 年の春， \rthreers~\cite{R3RS} として改訂が行われた。
+1988 年の春にもたらした \rfourrs~\cite{R4RS} は，
+1991 年にSchemeプログラミング言語のための IEEE 規格の基礎となった。
+1998 年には，高レベルの保健的なマクロ，複数の戻り値，および{\cf eval}を含む
+IEEE 規格へのいくつかの追加が，
+R5RSとして確定された。
+
+\todo{Perhaps flesh out a little and mention the forming of the
+ Steering Committee.}
+
+2006年秋，
+移植性向上の利益のために作られた，多くの新しい改良とより厳しい要件を含む，
+より大がかりな標準で活動が始まった。
+その結果となった標準，\rsixrs は，2007年8月~\cite{R6RS}に完成し，
+コア言語と必須の標準ライブラリのセットとしてまとめられた。
+それに準拠した Scheme のいくつかの新しい実装が作成された。
+しかし，ほとんどの既存 \rfivers{} 実装は(基本的にメンテナンスされていない
+ものを除いて) \rsixrs を採用しなかったか，選択された一部のみの採用でした。
+
+この結果，Scheme 運営委員会は，2009年8月，独立しているが互換性のある言語---
+教育者，研究者，組み込み言語のユーザーに適し，\rfivers 互換性に焦点を当てた``小さな''言語，
+および
+\rsixrs の代替となることを目的とした，主流のソフトウェア開発の実用的なニーズに焦点を当てた``大きな''言語
+の2つに標準を分割することを決定した。
+今回の報告書は，その努力の``小さな''言語について説明する。
+それゆえ，\rsixrs の後継として独立してみなすことはできない。
+
+
+
+\medskip
+
+我々は，本報告書を Scheme コミュニティ全体に属するものとしようと思う。
+そのため我々は，これの全部または一部を無料で複写することを許可する。
+とりわけ我々は，Scheme の実装者が本報告書をマニュアルその他の文書のための
+出発点として，必要に応じて改変しつつ，利用することを奨励する。
+
+
+
+
+\subsection*{謝辞}
+
+我々は運営委員会のメンバー，William
+Clinger, Marc Feeley, Chris Hanson, Jonathan Rees, ならびに Olin Shivers
+の支援と指導に感謝します。
+
+本報告書は，非常に多くのコミュニティの取り組みであり，我々は
+コメントやフィードバックを提供してくれた，次のすべての人に感謝したいと
+思います: David Adler, Eli Barzilay, Taylan Ulrich
+Bay\i{}rl\i/Kammer, Marco Benelli, Pierpaolo Bernardi,
+Peter Bex, Per Bothner, John Boyle, Taylor Campbell, Raffael Cavallaro,
+Ray Dillinger, Biep Durieux, Sztefan Edwards, Helmut Eller, Justin
+Ethier, Jay Reynolds Freeman, Tony Garnock-Jones, Alan Manuel Gloria,
+Steve Hafner, Sven Hartrumpf, Brian Harvey, Moritz Heidkamp, Jean-Michel
+Hufflen, Aubrey Jaffer, Takashi Kato, Shiro Kawai, Richard Kelsey, Oleg
+Kiselyov, Pjotr Kourzanov, Jonathan Kraut, Daniel Krueger, Christian
+Stigen Larsen, Noah Lavine, Stephen Leach, Larry D. Lee, Kun Liang,
+Thomas Lord, Vincent Stewart Manis, Perry Metzger, Michael Montague,
+Mikael More, Vitaly Magerya, Vincent Manis, Vassil Nikolov, Joseph
+Wayne Norton, Yuki Okumura, Daichi Oohashi, Jeronimo Pellegrini, Jussi
+Piitulainen, Alex Queiroz, Jim Rees, Grant Rettke, Andrew Robbins, Devon
+Schudy, Bakul Shah, Robert Smith, Arthur Smyles, Michael Sperber, John
+David Stone, Jay Sulzberger, Malcolm Tredinnick, Sam Tobin-Hochstadt,
+Andre van Tonder, Daniel Villeneuve, Denis Washington, Alan Watson,
+Mark H.  Weaver, G\"oran Weinholt, David A. Wheeler, Andy Wingo, James
+Wise, J\"org F. Wittenberger, Kevin A. Wortman, Sascha Ziemann.
+
+また我々はすべての過去の編集者，ひいては彼らを支援した人々に
+感謝したいと思います: Hal Abelson, Norman Adams, David
+Bartley, Alan Bawden, Michael Blair, Gary Brooks, George Carrette,
+Andy Cromarty, Pavel Curtis, Jeff Dalton, Olivier Danvy, Ken Dickey,
+Bruce Duba, Robert Findler, Andy Freeman, Richard Gabriel, Yekta
+G\"ursel, Ken Haase, Robert Halstead, Robert Hieb, Paul Hudak, Morry
+Katz, Eugene Kohlbecker, Chris Lindblad, Jacob Matthews, Mark Meyer,
+Jim Miller, Don Oxley, Jim Philbin, Kent Pitman, John Ramsdell,
+Guillermo Rozas, Mike Shaff, Jonathan Shapiro, Guy Steele, Julie
+Sussman, Perry Wagle, Mitchel Wand, Daniel Weise, Henry Wu, and Ozan
+Yigit.
+Scheme 311 バージョン 4 リファレンスマニュアルから
+テキストを使用する許可してくれた，Carol Fessenden, Daniel Friedman,
+ならびに Christopher Haynes に感謝します。
+{\em TI Scheme 言語リファレンスマニュアル}~\cite{TImanual85}から
+テキストを使用する許可してくれた，Cexas Instruments, Inc. に感謝します。
+我々は，MIT Scheme~\cite{MITScheme}, T~\cite{Rees84}, Scheme 84~\cite{Scheme84},
+Common Lisp~\cite{CLtL} および Algol 60~\cite{Naur63} に加え，
+{\cf http://srfi.schemers.org} で入手可能な以下のSRFIのマニュアルの影響を喜んで認めます:
+0, 1, 4, 6, 9, 11, 13, 16, 30, 34, 39, 43, 46, 62, および 87。
+
+%% \vest We also thank Betty Dexter for the extreme effort she put into
+%% setting this report in \TeX, and Donald Knuth for designing the program
+%% that caused her troubles.
+
+%% \vest The Artificial Intelligence Laboratory of the
+%% Massachusetts Institute of Technology, the Computer Science
+%% Department of Indiana University, the Computer and Information
+%% Sciences Department of the University of Oregon, and the NEC Research
+%% Institute supported the preparation of this report.  Support for the MIT
+%% work was provided in part by
+%% the Advanced Research Projects Agency of the Department of Defense under Office
+%% of Naval Research contract N00014-80-C-0505.  Support for the Indiana
+%% University work was provided by NSF grants NCS 83-04567 and NCS
+%% 83-03325.

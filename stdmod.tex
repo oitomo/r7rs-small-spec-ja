@@ -1,0 +1,448 @@
+\chapter{標準ライブラリ}
+\label{stdlibraries}
+
+%% Note, this is used to generate stdmod.tex.  The bindings could be
+%% extracted automatically from the document, but this lets us choose
+%% the ordering and optionally format manually where needed.
+
+本節では，標準ライブラリで提供されるエクスポートを一覧表示する。
+ライブラリは，すべての実装でサポートされないかもしれない，
+あるいは負荷が高いかもしれない機能を分離するように考慮されている。
+
+{\cf scheme} ライブラリ接頭辞にはすべての標準ライブラリで使用され，
+将来の規格で使用するために予約されている。
+
+\textbf{基本ライブラリ}
+
+\texttt{(scheme basic)}ライブラリは，
+伝統的に Scheme と関連付けられた多くの手続きと構文束縛をエクスポートする。
+基本ライブラリと他の標準ライブラリの境界は，構造上ではなく，使用上に基づく。
+特に，他の標準手続きまたは構文の点で
+コンパイラや実行システムによって通常プリミティブとして実装されている一部の手段は，
+基本ライブラリの一部としてではなく，分離したライブラリとして定義されている。
+同様に，基本ライブラリの一部のエクスポートは，他のエクスポートの点で実装可能である。
+それらは厳密な意味で冗長ではあるが，
+使い方の共通パターンを取り込んでいるので，便利な略語として提供されている。
+
+\begin{scheme}
+{\cf *}                       {\cf +}
+{\cf -}                       {\cf ...}
+{\cf /}                       {\cf <}
+{\cf <=}                      {\cf =}
+{\cf =>}                      {\cf >}
+{\cf >=}                      {\cf \_}
+{\cf abs}                     {\cf and}
+{\cf append}                  {\cf apply}
+{\cf assoc}                   {\cf assq}
+{\cf assv}                    {\cf begin}
+{\cf binary-port?\ }           {\cf boolean=?}
+{\cf boolean?\ }               {\cf bytevector}
+{\cf bytevector-append}       {\cf bytevector-copy}
+{\cf bytevector-copy!}        {\cf bytevector-length}
+{\cf bytevector-u8-ref}       {\cf bytevector-u8-set!}
+{\cf bytevector?\ }            {\cf caar}
+{\cf cadr}
+{\cf call-with-current-continuation}
+{\cf call-with-port}          {\cf call-with-values}
+{\cf call/cc}                 {\cf car}
+{\cf case}                    {\cf cdar}
+{\cf cddr}                    {\cf cdr}
+{\cf ceiling}                 {\cf char->integer}
+{\cf char-ready?\ }            {\cf char<=?}
+{\cf char<?\ }                 {\cf char=?}
+{\cf char>=?\ }                {\cf char>?}
+{\cf char?\ }                  {\cf close-input-port}
+{\cf close-output-port}       {\cf close-port}
+{\cf complex?\ }               {\cf cond}
+{\cf cond-expand}             {\cf cons}
+{\cf current-error-port}      {\cf current-input-port}
+{\cf current-output-port}     {\cf define}
+{\cf define-record-type}      {\cf define-syntax}
+{\cf define-values}           {\cf denominator}
+{\cf do}                      {\cf dynamic-wind}
+{\cf else}                    {\cf eof-object}
+{\cf eof-object?\ }            {\cf eq?}
+{\cf equal?\ }                 {\cf eqv?}
+{\cf error}                   {\cf error-object-irritants}
+{\cf error-object-message}    {\cf error-object?}
+{\cf even?\ }                  {\cf exact}
+{\cf exact-integer-sqrt}      {\cf exact-integer?}
+{\cf exact?\ }                 {\cf expt}
+{\cf features}                {\cf file-error?}
+{\cf floor}                   {\cf floor-quotient}
+{\cf floor-remainder}         {\cf floor/}
+{\cf flush-output-port}       {\cf for-each}
+{\cf gcd}                     {\cf get-output-bytevector}
+{\cf get-output-string}       {\cf guard}
+{\cf if}                      {\cf include}
+{\cf include-ci}              {\cf inexact}
+{\cf inexact?\ }               {\cf input-port-open?}
+{\cf input-port?\ }            {\cf integer->char}
+{\cf integer?\ }               {\cf lambda}
+{\cf lcm}                     {\cf length}
+{\cf let}                     {\cf let*}
+{\cf let*-values}             {\cf let-syntax}
+{\cf let-values}              {\cf letrec}
+{\cf letrec*}                 {\cf letrec-syntax}
+{\cf list}                    {\cf list->string}
+{\cf list->vector}            {\cf list-copy}
+{\cf list-ref}                {\cf list-set!}
+{\cf list-tail}               {\cf list?}
+{\cf make-bytevector}         {\cf make-list}
+{\cf make-parameter}          {\cf make-string}
+{\cf make-vector}             {\cf map}
+{\cf max}                     {\cf member}
+{\cf memq}                    {\cf memv}
+{\cf min}                     {\cf modulo}
+{\cf negative?\ }              {\cf newline}
+{\cf not}                     {\cf null?}
+{\cf number->string}          {\cf number?}
+{\cf numerator}               {\cf odd?}
+{\cf open-input-bytevector}   {\cf open-input-string}
+{\cf open-output-bytevector}  {\cf open-output-string}
+{\cf or}                      {\cf output-port-open?}
+{\cf output-port?\ }           {\cf pair?}
+{\cf parameterize}            {\cf peek-char}
+{\cf peek-u8}                 {\cf port?}
+{\cf positive?\ }              {\cf procedure?}
+{\cf quasiquote}              {\cf quote}
+{\cf quotient}                {\cf raise}
+{\cf raise-continuable}       {\cf rational?}
+{\cf rationalize}             {\cf read-bytevector}
+{\cf read-bytevector!}        {\cf read-char}
+{\cf read-error?\ }            {\cf read-line}
+{\cf read-string}             {\cf read-u8}
+{\cf real?\ }                  {\cf remainder}
+{\cf reverse}                 {\cf round}
+{\cf set!}                    {\cf set-car!}
+{\cf set-cdr!}                {\cf square}
+{\cf string}                  {\cf string->list}
+{\cf string->number}          {\cf string->symbol}
+{\cf string->utf8}            {\cf string->vector}
+{\cf string-append}           {\cf string-copy}
+{\cf string-copy!}            {\cf string-fill!}
+{\cf string-for-each}         {\cf string-length}
+{\cf string-map}              {\cf string-ref}
+{\cf string-set!}             {\cf string<=?}
+{\cf string<?\ }               {\cf string=?}
+{\cf string>=?\ }              {\cf string>?}
+{\cf string?\ }                {\cf substring}
+{\cf symbol->string}          {\cf symbol=?}
+{\cf symbol?\ }                {\cf syntax-error}
+{\cf syntax-rules}            {\cf textual-port?}
+{\cf truncate}                {\cf truncate-quotient}
+{\cf truncate-remainder}      {\cf truncate/}
+{\cf u8-ready?\ }              {\cf unless}
+{\cf unquote}                 {\cf unquote-splicing}
+{\cf utf8->string}            {\cf values}
+{\cf vector}                  {\cf vector->list}
+{\cf vector->string}          {\cf vector-append}
+{\cf vector-copy}             {\cf vector-copy!}
+{\cf vector-fill!}            {\cf vector-for-each}
+{\cf vector-length}           {\cf vector-map}
+{\cf vector-ref}              {\cf vector-set!}
+{\cf vector?\ }                {\cf when}
+{\cf with-exception-handler}  {\cf write-bytevector}
+{\cf write-char}              {\cf write-string}
+{\cf write-u8}                {\cf zero?}
+\end{scheme}
+
+\textbf{case-lambdaライブラリ}
+
+\texttt{(scheme case-lambda)} ライブラリは，
+{\cf case-lambda} 構文をエクスポートする。
+
+\begin{scheme}
+{\cf case-lambda}
+\end{scheme}
+
+\textbf{文字ライブラリ}
+
+\texttt{(scheme char)} ライブラリは，
+すべてのUnicode文字をサポートする場合，潜在的に大きなテーブルを伴う
+文字を扱う手続きを提供する。
+
+\begin{scheme}
+{\cf char-alphabetic?\ }       {\cf char-ci<=?}
+{\cf char-ci<?\ }              {\cf char-ci=?}
+{\cf char-ci>=?\ }             {\cf char-ci>?}
+{\cf char-downcase}           {\cf char-foldcase}
+{\cf char-lower-case?\ }       {\cf char-numeric?}
+{\cf char-upcase}             {\cf char-upper-case?}
+{\cf char-whitespace?\ }       {\cf digit-value}
+{\cf string-ci<=?\ }           {\cf string-ci<?}
+{\cf string-ci=?\ }            {\cf string-ci>=?}
+{\cf string-ci>?\ }            {\cf string-downcase}
+{\cf string-foldcase}         {\cf string-upcase}
+\end{scheme}
+
+\textbf{複素数ライブラリ}
+
+\texttt{(scheme complex)} ライブラリは，
+通常非実数のみ有用な手続きをエクスポートする。
+
+\begin{scheme}
+{\cf angle}                   {\cf imag-part}
+{\cf magnitude}               {\cf make-polar}
+{\cf make-rectangular}        {\cf real-part}
+\end{scheme}
+
+\textbf{CxRライブラリ}
+
+\texttt{(scheme cxr)} ライブラリは，
+3から4つの {\cf car} と {\cf cdr} 操作の合成からなる
+24個の手続きをエクスポートする。
+
+\begin{scheme}
+(define caddar
+  (lambda (x) (car (cdr (cdr (car x)))))){\rm.}%
+\end{scheme}
+
+{\cf car} と {\cf cdr} 自身，およびこれら2つの合成からなる4個の手続きは，
+基本ライブラリに含まれる。\ref{listsection}節参照。
+
+\begin{scheme}
+{\cf caaaar}                  {\cf caaadr}
+{\cf caaar}                   {\cf caadar}
+{\cf caaddr}                  {\cf caadr}
+{\cf cadaar}                  {\cf cadadr}
+{\cf cadar}                   {\cf caddar}
+{\cf cadddr}                  {\cf caddr}
+{\cf cdaaar}                  {\cf cdaadr}
+{\cf cdaar}                   {\cf cdadar}
+{\cf cdaddr}                  {\cf cdadr}
+{\cf cddaar}                  {\cf cddadr}
+{\cf cddar}                   {\cf cdddar}
+{\cf cddddr}                  {\cf cdddr}
+\end{scheme}
+
+\textbf{評価ライブラリ}
+
+\texttt{(scheme eval)} ライブラリは，
+プログラムとして Scheme データを評価する手続きをエクスポートする。
+
+\begin{scheme}
+{\cf environment}             {\cf eval}
+\end{scheme}
+
+\textbf{ファイルライブラリ}
+
+\texttt{(scheme file)} ライブラリは，
+ファイルにアクセスするための手続きを提供する。
+
+\begin{scheme}
+{\cf call-with-input-file}    {\cf call-with-output-file}
+{\cf delete-file}             {\cf file-exists?}
+{\cf open-binary-input-file}  {\cf open-binary-output-file}
+{\cf open-input-file}         {\cf open-output-file}
+{\cf with-input-from-file}    {\cf with-output-to-file}
+\end{scheme}
+
+\textbf{不正確ライブラリ}
+
+\texttt{(scheme inexact)} ライブラリは，
+通常不正確値のみ有用な手続きをエクスポートする。
+
+\begin{scheme}
+{\cf acos}                    {\cf asin}
+{\cf atan}                    {\cf cos}
+{\cf exp}                     {\cf finite?}
+{\cf infinite?\ }              {\cf log}
+{\cf nan?\ }                   {\cf sin}
+{\cf sqrt}                    {\cf tan}
+\end{scheme}
+
+\textbf{遅延ライブラリ}
+
+\texttt{(scheme lazy)} ライブラリは，
+遅延評価のための手続きと構文キーワードをエクスポートする。
+
+\begin{scheme}
+{\cf delay}                   {\cf delay-force}
+{\cf force}                   {\cf make-promise}
+{\cf promise?}
+\end{scheme}
+
+\textbf{ロードライブラリ}
+
+\texttt{(scheme load)} ライブラリは，
+Scheme 式をファイルからロードする手続きをエクスポートする。
+
+\begin{scheme}
+{\cf load}
+\end{scheme}
+
+\textbf{プロセスコンテキストライブラリ}
+
+\texttt{(scheme process-context)} ライブラリは，
+プログラムの呼び出しコンテキストにアクセスする手続きをエクスポートする。
+
+\begin{scheme}
+{\cf command-line}            {\cf emergency-exit}
+{\cf exit}
+{\cf get-environment-variable}
+{\cf get-environment-variables}
+\end{scheme}
+
+\textbf{読み込みライブラリ}
+
+\texttt{(scheme read)} ライブラリは，
+Scheme オブジェクトを読み込むための手続きを提供する。
+
+\begin{scheme}
+{\cf read}
+\end{scheme}
+
+\textbf{REPLライブラリ}
+
+\texttt{(scheme repl)} ライブラリは，
+{\cf interaction-environment} 手続きをエクスポートする。
+
+\begin{scheme}
+{\cf interaction-environment}
+\end{scheme}
+
+\textbf{時間ライブラリ}
+
+\texttt{(scheme time)} ライブラリは，
+時間に関連した値へのアクセスを提供する。
+
+\begin{scheme}
+{\cf current-jiffy}           {\cf current-second}
+{\cf jiffies-per-second}
+\end{scheme}
+
+\textbf{書き込みライブラリ}
+
+\texttt{(scheme write)} ライブラリは，
+Scheme オブジェクトを書き込むための手続きを提供する。
+
+\begin{scheme}
+{\cf display}                 {\cf write}
+{\cf write-shared}            {\cf write-simple}
+\end{scheme}
+
+\textbf{R5RSライブラリ}
+
+\texttt{(scheme r5rs)} ライブラリは，
+{\cf transcript-on} と {\cf transcript-off} が存在しないことを除いて，
+\rfivers で定義された識別子を提供する。
+{\cf exact} および {\cf inexact} 手続きは，
+それらは \rfivers のもとでは，それぞれ
+名前 {\cf inexact->exact} および {\cf exact->inexact} で現れる
+ことに注意せよ。
+しかし，もし実装が複素数ライブラリのような特定のライブラリを提供しなければ，
+対応する識別子はこのライブラリに現れなくなる。
+
+\begin{scheme}
+{\cf *}                       {\cf +}
+{\cf -}                       {\cf /}
+{\cf <}                       {\cf <=}
+{\cf =}                       {\cf >}
+{\cf >=}                      {\cf abs}
+{\cf acos}                    {\cf and}
+{\cf angle}                   {\cf append}
+{\cf apply}                   {\cf asin}
+{\cf assoc}                   {\cf assq}
+{\cf assv}                    {\cf atan}
+{\cf begin}                   {\cf boolean?}
+{\cf caaaar}                  {\cf caaadr}
+{\cf caaar}                   {\cf caadar}
+{\cf caaddr}                  {\cf caadr}
+{\cf caar}                    {\cf cadaar}
+{\cf cadadr}                  {\cf cadar}
+{\cf caddar}                  {\cf cadddr}
+{\cf caddr}                   {\cf cadr}
+{\cf call-with-current-continuation}
+{\cf call-with-input-file}    {\cf call-with-output-file}
+{\cf call-with-values}        {\cf car}
+{\cf case}                    {\cf cdaaar}
+{\cf cdaadr}                  {\cf cdaar}
+{\cf cdadar}                  {\cf cdaddr}
+{\cf cdadr}                   {\cf cdar}
+{\cf cddaar}                  {\cf cddadr}
+{\cf cddar}                   {\cf cdddar}
+{\cf cddddr}                  {\cf cdddr}
+{\cf cddr}                    {\cf cdr}
+{\cf ceiling}                 {\cf char->integer}
+{\cf char-alphabetic?\ }       {\cf char-ci<=?}
+{\cf char-ci<?\ }              {\cf char-ci=?}
+{\cf char-ci>=?\ }             {\cf char-ci>?}
+{\cf char-downcase}           {\cf char-lower-case?}
+{\cf char-numeric?\ }          {\cf char-ready?}
+{\cf char-upcase}             {\cf char-upper-case?}
+{\cf char-whitespace?\ }       {\cf char<=?}
+{\cf char<?\ }                 {\cf char=?}
+{\cf char>=?\ }                {\cf char>?}
+{\cf char?\ }                  {\cf close-input-port}
+{\cf close-output-port}       {\cf complex?}
+{\cf cond}                    {\cf cons}
+{\cf cos}                     {\cf current-input-port}
+{\cf current-output-port}     {\cf define}
+{\cf define-syntax}           {\cf delay}
+{\cf denominator}             {\cf display}
+{\cf do}                      {\cf dynamic-wind}
+{\cf eof-object?\ }            {\cf eq?}
+{\cf equal?\ }                 {\cf eqv?}
+{\cf eval}                    {\cf even?}
+{\cf exact->inexact}          {\cf exact?}
+{\cf exp}                     {\cf expt}
+{\cf floor}                   {\cf for-each}
+{\cf force}                   {\cf gcd}
+{\cf if}                      {\cf imag-part}
+{\cf inexact->exact}          {\cf inexact?}
+{\cf input-port?\ }            {\cf integer->char}
+{\cf integer?\ }               {\cf interaction-environment}
+{\cf lambda}                  {\cf lcm}
+{\cf length}                  {\cf let}
+{\cf let*}                    {\cf let-syntax}
+{\cf letrec}                  {\cf letrec-syntax}
+{\cf list}                    {\cf list->string}
+{\cf list->vector}            {\cf list-ref}
+{\cf list-tail}               {\cf list?}
+{\cf load}                    {\cf log}
+{\cf magnitude}               {\cf make-polar}
+{\cf make-rectangular}        {\cf make-string}
+{\cf make-vector}             {\cf map}
+{\cf max}                     {\cf member}
+{\cf memq}                    {\cf memv}
+{\cf min}                     {\cf modulo}
+{\cf negative?\ }              {\cf newline}
+{\cf not}                     {\cf null-environment}
+{\cf null?\ }                  {\cf number->string}
+{\cf number?\ }                {\cf numerator}
+{\cf odd?\ }                   {\cf open-input-file}
+{\cf open-output-file}        {\cf or}
+{\cf output-port?\ }           {\cf pair?}
+{\cf peek-char}               {\cf positive?}
+{\cf procedure?\ }             {\cf quasiquote}
+{\cf quote}                   {\cf quotient}
+{\cf rational?\ }              {\cf rationalize}
+{\cf read}                    {\cf read-char}
+{\cf real-part}               {\cf real?}
+{\cf remainder}               {\cf reverse}
+{\cf round}
+{\cf scheme-report-environment}
+{\cf set!}                    {\cf set-car!}
+{\cf set-cdr!}                {\cf sin}
+{\cf sqrt}                    {\cf string}
+{\cf string->list}            {\cf string->number}
+{\cf string->symbol}          {\cf string-append}
+{\cf string-ci<=?\ }           {\cf string-ci<?}
+{\cf string-ci=?\ }            {\cf string-ci>=?}
+{\cf string-ci>?\ }            {\cf string-copy}
+{\cf string-fill!}            {\cf string-length}
+{\cf string-ref}              {\cf string-set!}
+{\cf string<=?\ }              {\cf string<?}
+{\cf string=?\ }               {\cf string>=?}
+{\cf string>?\ }               {\cf string?}
+{\cf substring}               {\cf symbol->string}
+{\cf symbol?\ }                {\cf tan}
+{\cf truncate}                {\cf values}
+{\cf vector}                  {\cf vector->list}
+{\cf vector-fill!}            {\cf vector-length}
+{\cf vector-ref}              {\cf vector-set!}
+{\cf vector?\ }                {\cf with-input-from-file}
+{\cf with-output-to-file}     {\cf write}
+{\cf write-char}              {\cf zero?}
+\end{scheme}

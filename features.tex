@@ -1,0 +1,23 @@
+\chapter{標準機能識別子}
+\label{stdfeatures}
+
+実装は {\cf cond-expand} および {\cf features}による使用のために，
+下に列挙されている任意のあるいはすべての機能識別子を提供してもよいが，
+もし対応する機能を提供していなければ，その機能識別子は提供してはならない。
+
+\label{standard_features}
+
+\feature{r7rs}{すべての \rsevenrs\ Scheme 実装はこの機能をもつ。}
+\feature{exact-closed}{{\cf /} を除くすべての代数演算は，与えられた正確入力に対して正確値をもたらす。}
+\feature{exact-complex}{正確複素数が提供されている。}
+\feature{ieee-float}{不正確数が IEEE 754 バイナリ浮動小数点数である。}
+\feature{full-unicode}{Unicode version 6.0 におけるすべての Unicode 文字表現が， Scheme 文字としてサポートされている。}
+\feature{ratios}{除数が非ゼロのとき，{\cf /} に正確な引数を指定して，正確な結果をもたらす。}
+\feature{posix}{この実装が，POSIX システム上で実行されている。}
+\feature{windows}{この実装が，Windows上で実行されている。}
+\feature{unix, darwin, gnu-linux, bsd, freebsd, solaris, ...}{オペレーティングシステムフラグ(おそらく一つ以上)。}
+\feature{i386, x86-64, ppc, sparc, jvm, clr, llvm, ...}{CPU アーキテクチャフラグ。}
+\feature{ilp32, lp64, ilp64, ...}{C メモリモデルフラグ。}
+\feature{big-endian, little-endian}{バイトオーダフラグ。}
+\feature{\hyper{名前}}{この実装の名前。}
+\feature{\hyper{名前-バージョン}}{この実装の名前およびバージョン。}

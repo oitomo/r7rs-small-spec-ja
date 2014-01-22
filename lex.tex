@@ -1,0 +1,236 @@
+% Lexical structure
+
+%%\vfill\eject
+\chapter{字句規約}
+
+本節は Scheme プログラムを書くときに使われる字句的な規約のいくつかを
+非形式的に説明する。
+Scheme の形式的な構文については\ref{BNF}節を見よ。
+
+\section{識別子}
+\label{syntaxsection}
+
+識別子は，文字，数字，および有効な数である接頭辞を持っていないことを条件とする
+``拡張識別子文字''の任意のシーケンスである。
+しかし，リスト構文で使用される \ide{.} トークン(単一ピリオド)は識別子ではない。
+
+Scheme のすべての実装は以下の拡張識別子文字をサポートしなければならない:
+
+\begin{scheme}
+!\ \$ \% \verb"&" * + - . / :\ < = > ? @ \verb"^" \verb"_" \verb"~" %
+\end{scheme}
+
+代わりに，識別子は垂直線で囲まれた0個以上の文字列で表すことができ，
+文字列リテラルに似ている。
+空白文字を含むが，バックスラッシュと垂直線の文字を除く任意の文字は，
+そのような識別子にそのまま表示することができる。
+また，文字は\meta{インライン16進エスケープ}
+あるいは文字列内で使用可能な同一エスケープのいずれか
+を使用して指定することができる。
+
+たとえば，識別子 \verb+|H\x65;llo|+ は \verb+Hello+ と同一の識別子であり，
+適切なUnicode文字をサポートする実装では，識別子 \verb+|\x3BB;|+ は
+識別子 $\lambda$ と同一である。
+しかも，\verb+|\t\t|+ と \verb+|\x9;\x9;|+ は同一である。
+\verb+||+ は他の識別子とは異なる有効な識別子であることに注意せよ。
+
+ここでは識別子の例をいくつか示す。
+
+\begin{scheme}
+...                      {+}
++soup+                   <=?
+->string                 a34kTMNs
+lambda                   list->vector
+q                        V17a
+|two words|              |two\backwhack{}x20;words|
+the-word-recursion-has-many-meanings%
+\end{scheme}
+
+識別子の形式的な構文については\ref{extendedalphas}節を見よ。
+
+\vest 識別子には Scheme プログラムの中で二つの用途がある。
+\begin{itemize}
+\item どの識別子も変数\index{variable}として，
+または構文キーワード\index{syntactic keyword}として使える
+(\ref{variablesection}節および\ref{macrosection}節参照)。
+
+\item 識別子がリテラルとして，またはリテラルの中に現れたとき
+(\ref{quote}節参照)，それは{\em シンボル}を表すために使われている
+(\ref{symbolsection}節参照)。
+\end{itemize}
+
+報告書の以前の改訂~\cite{R5RS} とは対照的に，
+構文は，識別子およびその名前を使用して指定された文字で，大文字と小文字を区別する。
+しかし，数字あるいは識別子，文字，文字列の構文で使用される\meta{インライン16進エスケープ}
+では大文字と小文字を区別しない。
+本報告書で定義された識別子はいずれも，英語の規約の結果として
+文の最初の単語を大文字で始めるように表示された場合でも，大文字が含まれていない。
+
+次のディレクティブは，大文字小文字変換に明示的な制御を与える。
+
+\begin{entry}{%
+{\cf{}\#!fold-case}\sharpbangindex{fold-case}\\
+{\cf{}\#!no-fold-case}\sharpbangindex{no-fold-case}}
+
+これらのディレクティブは，コメントが許可されている任意の場所に表示できる (\ref{wscommentsection}参照) が，
+区切り文字の後に続かなければならない。
+それらは同じポートから後続のデータの読み出しに影響を与えることを除いては，コメントとして扱われる。
+{\cf{}\#!fold-case} ディレクティブは，後続の識別子や文字の名前が
+{\cf string-foldcase} (\ref{stringsection}節参照) によってであるかのように大文字小文字変換を起こす。
+これは，文字リテラルには影響しない。
+{\cf{}\#!no-fold-case} ディレクティブは，デフォルトの大文字小文字変換を行わない振舞いへの戻りを起こす。
+\end{entry}
+
+
+
+\section{空白と注釈}
+\label{wscommentsection}
+
+{\em 空白}文字 (\defining{whitespace} character) は，スペース，タブおよび改行を含む。
+(実装は改ページなどの付加的な空白文字を定めてもよい。)
+空白は，可読性を向上するために使われ，そしてトークンどうしを分離するために
+欠かせないものとして使われるが，それ以外の意味はない。
+ここでトークンとは，識別子または数などの，ある分割できない字句単位である。
+空白はどの二つのトークンのあいだに出現してもよいが，
+一つのトークンの途中に出現してはならない。
+文字列の内部または縦線で区切られたシンボルの内部に出現する空白は重要である。
+
+字句構文は、いくつかのコメント形式が含まれている。
+コメントは正確に空白のように扱われる。
+
+セミコロン ({\tt;}) は注釈 (comment) 行の開始を
+示す。\mainindex{comment}\mainschindex{;}
+注釈はそのセミコロンが現れた行の行末まで続く。
+
+コメントを示すもうひとつの方法は，\hyper{データ}(\ref{datumsyntax}節参照) に
+{\tt \#;}\sharpindex{;} と省略可能な \meta{空白} を接頭辞として付けることである。
+コメントは，コメント接頭辞 {\tt \#;}，スペース，および \hyper{データ} と共に構成されている。
+この表記は，コードのセクションを``コメントアウト''するのに有用である。
+
+ブロックコメントは，適切なネスト{\tt
+  \#|}\index{#"|@\texttt{\sharpsign\verticalbar}}\index{"|#@\texttt{\verticalbar\sharpsign}}
+と {\tt |\#} のペアで示される。
+
+\begin{scheme}
+\#|
+   FACT 手続き
+   非負整数の階乗 (factorial) を計算する
+|\#
+(define fact
+  (lambda (n)
+    (if (= n 0)
+        \#;(= n 1)
+        1        ;再帰の底: 1 を返す
+        (* n (fact (- n 1))))))%
+\end{scheme}
+
+
+\section{その他の表記}
+
+\todo{Rewrite?}
+
+数に対して使われる表記の記述については\ref{numbersection}節を見よ。
+
+\begin{description}{}{}
+
+\item[{\tt.\ + -}]
+これらは数で使われ，そしてまた識別子のどこにでも出現する可能性がある。
+１個の孤立した正符号または負符号も識別子である。
+１個の孤立した (数や識別子の中に出現するのではない) ピリオドは，
+ペアの表記 (\ref{listsection}節) で，および仮パラメタ並びの
+残余パラメタ (\ref{lambda}節) を示すために使われる。
+２つ以上のピリオドからなる列は識別子{\em である}ことに注意せよ。
+
+\item[\tt( )]
+丸カッコはグループ化とリストの表記のために使われる(\ref{listsection}節)。
+
+\item[\singlequote]
+アポストロフィー(単一引用符)はリテラルデータを示すために使われる(\ref{quote}節)。
+
+\item[\backquote]
+グレイヴアクセント(逆引用符)は部分的定数データを示すために使われる(\ref{quasiquote}節)。
+
+\item[\tt, ,@]
+文字「コンマ」と列「コンマ」「アットマーク」は準引用と組み合わせて使われる
+(\ref{quasiquote}節)。
+
+\item[\tt"]
+ストレートクォーテーションマークは文字列を区切るために使われる(\ref{stringsection}節)。
+
+\item[\backwhack]
+逆スラッシュは文字定数を表す構文で使われ(\ref{charactersection}節)，
+そして文字列定数(\ref{stringsection}節)および識別子(section~\ref{extendedalphas})
+の中のエスケープ文字として使われる。
+
+% A box used because \verb is not allowed in command arguments.
+\setbox0\hbox{\tt \verb"[" \verb"]" \verb"{" \verb"}"}
+\item[\copy0]
+左右の角カッコと波カッコ(ブレース)は，
+言語にとって将来あり得る拡張のために予約されている。
+
+\item[\sharpsign] 番号記号は下記のように
+その直後に続く文字によって決まる様々な目的のために使われる。
+
+\item[\schtrue{} \schfalse{}]
+これらは代替 \sharpfoo{true} および \sharpfoo{false} とともに，
+ブーリアン定数である(\ref{booleansection}節)。
+
+\item[\sharpsign\backwhack]
+これは文字定数の先頭となる(\ref{charactersection}節)。
+
+\item[\sharpsign\tt(]
+これはベクタ定数の先頭となる(\ref{vectorsection}節)。
+ベクタ定数は {\tt)} を末尾とする。
+
+\item[\sharpsign\tt u8(]
+これはバイトベクタ定数(\ref{bytevectorsection}節)を導入する。バイトベクタ定数は ~{\tt)}~ で終わる。
+
+\item[{\tt\#e \#i \#b \#o \#d \#x}]
+これらは数の表記に使われる(\ref{numbernotations}節)。
+
+\item[\tt{\#\hyper{n}= \#\hyper{n}\#}]
+これらはラベリングおよび他のリテラルデータを参照するために使われている(\ref{labelsection}節)。
+
+\end{description}
+
+\section{データラベル}\unsection
+\label{labelsection}
+
+\begin{entry}{%
+\pproto{\#\hyper{n}=\hyper{データ}}{字句構文}
+\pproto{\#\hyper{n}\#}{字句構文}}
+
+字句構文
+\texttt{\#\hyper{n}=\hyper{データ}} は \hyper{データ} と同じ読み込みだけでなく，
+\hyper{データ} が \hyper{n}でラベリングされていることになる。
+\hyper{n} が数字の列でない場合はエラーである。
+
+字句構文 \texttt{\#\hyper{n}\#} は \texttt{\#\hyper{n}=} でラベル付けされた
+あるオブジェクトへの参照として機能する。
+結果は， \texttt{\#\hyper{n}}= と同じオブジェクトである
+(\ref{equivalencesection}節参照)。
+
+合わせて，これらの構文は，共有または環状の部分構造を有する構造の表記を可能にする。
+
+\begin{scheme}
+(let ((x (list 'a 'b 'c)))
+  (set-cdr! (cddr x) x)
+  x)                       \ev \#0=(a b c . \#0\#)
+\end{scheme}
+
+データラベルの範囲は，そのラベルの右側に表われる最も外側のデータの一部である。
+その結果，参照 \texttt{\#\hyper{n}\#} はラベル \texttt{\#\hyper{n}=} の後にのみ現れることができる。
+それは前方参照を試行することはエラーである。
+加えて，参照が (\texttt{\#\hyper{n}= \#\hyper{n}\#} のように)，
+ラベル付けされたオブジェクト自身として現れる場合は \texttt{\#\hyper{n}=} で
+ラベル付けされたオブジェクトがこの場合にも定義されていないため，エラーである。
+
+リテラルを除いて，循環参照を含むことは \hyper{プログラム} または \hyper{ライブラリ} のエラーである。
+特に，それらを含むことは，{\cf 準クォート}(\ref{quasiquote}節)のエラーである。
+
+\begin{scheme}
+\#1=(begin (display \#\backwhack{}x) \#1\#)
+                       \ev \scherror%
+\end{scheme}
+\end{entry}
+

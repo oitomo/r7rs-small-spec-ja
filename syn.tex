@@ -1,0 +1,466 @@
+\chapter{形式的な構文と意味論}
+\label{formalchapter}
+
+本章は，本報告書のこれまでの章で非形式的に記述されてきたことの
+形式的な記述を与える。
+
+
+
+\section{形式的構文}
+\label{BNF}
+
+本節は拡張 BNF で書かれた Scheme の形式的構文を定める。
+
+文法におけるすべてのスペースは読みやすさのためにある。
+英大文字と英小文字は，\meta{英字}, \meta{文字名} および \meta{ニモニックエスケープ}の
+定義を除いて区別されない。
+たとえば， {\cf \#x1A} と {\cf \#X1a} は等価であるが，
+{\cf foo} と {\cf Foo} ならびに {\cf \#\backwhack{}space} と {\cf \#\backwhack{}Space}
+は独立している。
+\meta{空} は空文字列を表す。
+
+記述を簡潔にするため BNF への下記の拡張を
+使う:  \arbno{\meta{なにか}} は \meta{なにか} の 0 個以上の出現を
+意味し，\atleastone{\meta{なにか}} は少なくとも 1 個の \meta{なにか} を
+意味する。
+
+
+\subsection{字句構造}
+
+本節は個々のトークン\index{token} (識別子や数など) が文字の列から
+どのようにつくられるかを記述する。続く各節は，式とプログラムがトークンの列から
+どのようにつくられるかを記述する。
+
+\meta{トークン間スペース} は任意のトークンの左右どちらの側にも出現できるが，
+トークンの内側には出現できない。
+
+\vest 縦線で始まらない識別子は，\meta{区切り文字}によって，
+あるいは入力の終わりで終わる。
+それらはドット，数，文字，およびブーリアンである。
+縦線で始まる識別子は，もう一つの縦線で終わる。
+
+次に挙げる ASCII レパートリーからの四つの文字は言語への将来の拡張のために予約されて
+いる: {\tt \verb"[" \verb"]" \verb"{" \verb"}"}
+
+下記で指定された ASCII レパートリーの識別子文字に加えて，
+Scheme 実装は，
+そのような各文字が Unicode 一般カテゴリ
+Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Pd, Pc, Po, Sc, Sm, Sk, So,
+または Co をもつ，または U+200C または U+200D
+(それぞれ，幅がゼロの非結合子および結合子で，ペルシャ語，ヒンディー語，およびその他の言語で正しい綴りのために必要とされる)
+であるという条件で，識別子に採用される Unicode 文字の任意の追加レパートリーを許可してもよい。
+しかし，最初の文字が一般カテゴリNd, Mc, または Meをもつことはエラーである。
+非 Unicode 文字をシンボルまたは識別子に使用することもエラーである。
+
+すべての Scheme 実装は，縦線で括られている Scheme 識別子で現れるために
+エスケープシーケンス {\tt \backwhack{}x<hexdigits>;} を許可しなければならない。
+もし与えられた Unicode スカラ値をもつ文字が実装でサポートされている場合は，
+そのような列を含んでいる識別子は対応する文字を含んでいる識別子と等価である。
+
+\begin{grammar}%
+\meta{トークン} \: \meta{識別子} \| \meta{ブーリアン} \| \meta{数}\index{identifier}
+\>  \| \meta{文字} \| \meta{文字列}
+\>  \| ( \| ) \| \sharpsign( \| \sharpsign u8( \| \singlequote{} \| \backquote{} \| , \| ,@ \| {\bf.}
+\meta{区切り文字} \: \meta{空白} \| \meta{縦線}
+\> \| ( \| ) \| " \| ;
+\meta{行内空白} \: \meta{スペースまたはタブ}
+\meta{空白} \: \meta{行内空白} \| \meta{行末}
+\meta{縦線} \: |
+\meta{行末} \: \meta{改行} \| \meta{復帰} \meta{改行}
+\> \| \meta{復帰}
+\meta{注釈} \: ; \= $\langle$\rm 行末までのすべての後続する文字$\rangle$\index{comment}
+\> \| \meta{ネストしたコメント}
+\> \| \#; \meta{トークン間スペース} \meta{データ}
+\meta{ネストしたコメント} \: \#| \= \meta{コメント文}
+\> \arbno{\meta{継続コメント}} |\#
+\meta{コメント文} \: \= $\langle$\rm {\tt \#|} または {\tt |\#} を含まない文字の並び$\rangle$
+\meta{継続コメント} \: \meta{ネストしたコメント} \meta{コメント文}
+\meta{ディレクティブ} \: \#!fold-case \| \#!no-fold-case%
+\end{grammar}
+
+\meta{ディレクティブ} の後に \meta{区切り文字} 以外の何か，または EOF が続くことは，
+非文法的であることに注意せよ。
+
+\begin{grammar}%
+\meta{アトモスフィア} \: \meta{空白} \| \meta{注釈} \| \meta{ディレクティブ}
+\meta{トークン間スペース} \: \arbno{\meta{アトモスフィア}}%
+\end{grammar}
+
+\label{extendedalphas}
+\label{identifiersyntax}
+
+% This is a kludge, but \multicolumn doesn't work in tabbing environments.
+\setbox0\hbox{\cf\meta{識別子} \goesto{} $\langle$}
+
+以下の {\cf +i}, {\cf -i} および \meta{無限大および無効値} は
+\meta{独特な識別子} 規則の例外であることに注意せよ。
+それらは識別子としてではなく，数として解釈される。
+
+\begin{grammar}%
+\meta{識別子} \: \meta{頭文字} \arbno{\meta{後続文字}}
+ \>  \| \meta{縦線} \arbno{\meta{シンボル要素}} \meta{縦線}
+ \>  \| \meta{独特な識別子}
+\meta{頭文字} \: \meta{英字} \| \meta{特殊頭文字}
+\meta{英字} \: a \| b \| c \| ... \| z
+\> \| A \| B \| C \| ... \| Z
+\meta{特殊頭文字} \: ! \| \$ \| \% \| \verb"&" \| * \| / \| : \| < \| =
+ \>  \| > \| ? \| \verb"^" \| \verb"_" \| \verb"~"
+\meta{後続文字} \: \meta{頭文字} \| \meta{数字} \| \meta{特殊後続文字}
+\meta{数字} \: 0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8 \| 9
+\meta{16進数字} \: \meta{数字} \| a \| b \| c \| d \| e \| f
+\meta{明示的符号} \: + \| -
+\meta{特殊後続文字} \: \meta{明示的符号} \| . \| @
+\meta{インライン16進エスケープ} \: \backwhack{}x\meta{16進スカラ値};
+\meta{16進スカラ値} \: \atleastone{\meta{16進数字}}
+\meta{ニモニックエスケープ} \: \backwhack{}a \| \backwhack{}b \| \backwhack{}t \| \backwhack{}n \| \backwhack{}r
+\meta{独特な識別子} \: \meta{明示的符号}
+ \> \| \meta{明示的符号} \meta{符号後続文字} \arbno{\meta{後続文字}}
+ \> \| \meta{明示的符号} . \meta{ドット後続文字} \arbno{\meta{後続文字}}
+ \> \| . \meta{ドット後続文字} \arbno{\meta{後続文字}}
+ %\| 1+ \| -1+
+\meta{ドット後続文字} \: \meta{符号後続文字} \| .
+\meta{符号後続文字} \: \meta{頭文字} \| \meta{明示的符号} \| @
+\meta{記号要素} \:
+ \> \meta{any character other than \meta{縦線} or \backwhack}
+ \> \| \meta{インライン16進エスケープ} \| \meta{ニモニックエスケープ} \| \backwhack{}|
+
+\meta{ブーリアン} \: \schtrue{} \| \schfalse{} \| \sharptrue{} \| \sharpfalse{}
+\label{charactersyntax}
+\meta{文字} \: \#\backwhack{} \meta{任意の文字}
+ \>  \| \#\backwhack{} \meta{文字名}
+ \>  \| \#\backwhack{}x\meta{16進スカラ値}
+\meta{文字名} \: alarm \| backspace \| delete 
+\> \| escape \| newline \| null \| return \| space \| tab
+\todo{Explain what happens in the ambiguous case.}
+\meta{文字列} \: " \arbno{\meta{文字列要素}} "
+\meta{文字列要素} \: \meta{\doublequote{} と \backwhack を除く任意の文字}
+ \> \| \meta{ニモニックエスケープ} \| \backwhack\doublequote{} \| \backwhack\backwhack 
+ \>  \| \backwhack{}\arbno{\meta{行内空白}}\meta{行末}
+ \>  \> \arbno{\meta{行内空白}}
+ \>  \| \meta{インライン16進エスケープ}
+\meta{バイトベクタ} \: \#u8(\arbno{\meta{バイト}})
+\meta{バイト} \: \meta{0から255までの任意の整数}%
+\end{grammar}
+
+
+\label{numbersyntax}
+
+\begin{grammar}%
+\meta{数} \: \meta{$2$進数} \| \meta{$8$進数}
+   \>  \| \meta{$10$進数} \| \meta{$16$進数}
+\end{grammar}
+
+\meta{$R$進数}，\meta{$R$進複素数}，\meta{$R$進実数}，\meta{$R$進符号なし実数}，
+\meta{$R$進符号なし整数}，および \meta{$R$進\-接頭辞} に対する
+下記の規則は \hbox{$R = 2, 8, 10, 16$} に対して暗黙的に複製されるものとする。
+\meta{$2$進小数}，\meta{$8$進小数}，および \meta{$16$進小数} に対する
+規則はなく，これは小数点や指数部をもつ数は常に10進小数で
+あることを意味する。
+以下には示されていないが，数の文法で使用されているすべての
+アルファベット文字は，大文字または小文字のどちらでも書ける。
+\begin{grammar}%
+\meta{$R$進数} \: \meta{$R$進接頭辞} \meta{$R$進複素数}
+\meta{$R$進複素数} \: %
+         \meta{$R$進実数} %
+      \| \meta{$R$進実数} @ \meta{$R$進実数}
+   \> \| \meta{$R$進実数} + \meta{$R$進符号なし実数} i %
+      \| \meta{$R$進実数} - \meta{$R$進符号なし実数} i
+   \> \| \meta{$R$進実数} + i %
+      \| \meta{$R$進実数} - i %
+      \| \meta{$R$進実数} \meta{無限大および無効値} i 
+   \> \| + \meta{$R$進符号なし実数} i %
+      \| - \meta{$R$進符号なし実数} i
+   \> \| \meta{無限大および無効値} i %
+      \| + i %
+      \| - i
+\meta{$R$進実数} \: \meta{符号} \meta{$R$進符号なし実数}
+   \> \| \meta{無限大および無効値}
+\meta{$R$進符号なし実数} \: %
+         \meta{$R$進符号なし整数}
+   \> \| \meta{$R$進符号なし整数} / \meta{$R$進符号なし整数}
+   \> \| \meta{$R$進小数}
+\meta{$10$進小数} \: %
+         \meta{$10$進符号なし整数} \meta{接尾辞}
+   \> \| . \atleastone{\meta{$10$進数字}} \meta{接尾辞}
+   \> \| \atleastone{\meta{$10$進数字}} . \arbno{\meta{$10$進数字}} \meta{接尾辞}
+\meta{$R$進符号なし整数} \: \atleastone{\meta{$R$進数字}}
+\meta{$R$進接頭辞} \: %
+         \meta{$R$進基数接頭辞} \meta{正確性接頭辞}
+   \> \| \meta{正確性接頭辞} \meta{$R$進基数接頭辞}
+\meta{無限大および無効値} \: +inf.0 \| -inf.0 \| +nan.0 \| -nan.0
+\end{grammar}
+
+\begin{grammar}%
+\meta{接尾辞} \: \meta{空} 
+   \> \| \meta{指数部マーカ} \meta{符号} \atleastone{\meta{$10$進数字}}
+\meta{指数部マーカ} \: e
+\meta{符号} \: \meta{空}  \| + \|  -
+\meta{正確性接頭辞} \: \meta{空} \| \#i\sharpindex{i} \| \#e\sharpindex{e}
+\meta{2進基数接頭辞} \: \#b\sharpindex{b}
+\meta{8進基数接頭辞} \: \#o\sharpindex{o}
+\meta{10進基数接頭辞} \: \meta{空} \| \#d
+\meta{16進基数接頭辞} \: \#x\sharpindex{x}
+\meta{2進数字} \: 0 \| 1
+\meta{8進数字} \: 0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7
+\meta{10進数字} \: \meta{数字}
+\meta{16進数字} \: \meta{$10$進数字} \| a \| b \| c \| d \| e \| f %
+\end{grammar}
+
+
+\subsection{外部表現}
+\label{datumsyntax}
+
+\meta{データ} とは \ide{read} 手続き (\ref{read}節) がパースに成功する
+ものである。
+\meta{式} としてパースできる文字列はすべて，\meta{データ} としても
+パースできることになる点に注意せよ。\label{datum}
+
+\begin{grammar}%
+\meta{データ} \: \meta{単純データ} \| \meta{複合データ}
+\>  \| \meta{ラベル} = \meta{データ} \| \meta{ラベル} \#
+\meta{単純データ} \: \meta{ブーリアン} \| \meta{数}
+\>  \| \meta{文字} \| \meta{文字列} \|  \meta{シンボル} \| \meta{バイトベクタ}
+\meta{シンボル} \: \meta{識別子}
+\meta{複合データ} \: \meta{リスト} \| \meta{ベクタ} \| \meta{略記形}
+\meta{リスト} \: (\arbno{\meta{データ}}) \| (\atleastone{\meta{データ}} .\ \meta{データ})
+\meta{略記形} \: \meta{略記接頭辞} \meta{データ}
+\meta{略記接頭辞} \: ' \| ` \| , \| ,@
+\meta{ベクタ} \: \#(\arbno{\meta{データ}})
+\meta{ラベル} \: \# \meta{10進符号なし整数}%
+\end{grammar}
+
+
+\subsection{式}
+
+本項および後続の項での定義は，
+本報告書内のすべての構文キーワードは，それらのライブラリから適切にインポートされ，
+いずれも再定義または隠蔽されていないものと仮定する。
+
+\begin{grammar}%
+\meta{式} \: \meta{識別子}
+\>  \| \meta{リテラル}
+\>  \| \meta{手続き呼出し}
+\>  \| \meta{ラムダ式}
+\>  \| \meta{条件式}
+\>  \| \meta{代入}
+\>  \| \meta{派生式}
+\>  \| \meta{マクロ使用}
+\>  \| \meta{マクロブロック}
+\>  \| \meta{インクルーダ}
+
+\meta{リテラル} \: \meta{引用} \| \meta{自己評価的データ}
+\meta{自己評価的データ} \: \meta{ブーリアン} \| \meta{数} \| \meta{ベクタ}
+\>  \| \meta{文字} \| \meta{文字列} \| \meta{バイトベクタ}
+\meta{引用} \: '\meta{データ} \| (quote \meta{データ})
+\meta{手続き呼出し} \: (\meta{演算子} \arbno{\meta{オペランド}})
+\meta{演算子} \: \meta{式}
+\meta{オペランド} \: \meta{式}
+
+\meta{ラムダ式} \: (lambda \meta{仮引数部} \meta{本体})
+\meta{仮引数部} \: (\arbno{\meta{識別子}}) \| \meta{識別子}
+\>  \| (\atleastone{\meta{識別子}} .\ \meta{識別子})
+\meta{本体} \:  \arbno{\meta{定義}} \meta{列}
+\meta{列} \: \arbno{\meta{コマンド}} \meta{式}
+\meta{コマンド} \: \meta{式}
+
+\meta{条件式} \: (if \meta{テスト} \meta{帰結部} \meta{代替部})
+\meta{テスト} \: \meta{式}
+\meta{帰結部} \: \meta{式}
+\meta{代替部} \: \meta{式} \| \meta{空}
+
+\meta{代入} \: (set! \meta{識別子} \meta{式})
+
+\meta{派生式} \:
+\>  \> (cond \atleastone{\meta{cond節}})
+\>  \| (cond \arbno{\meta{cond節}} (else \meta{列}))
+\>  \| (c\=ase \meta{式}
+\>       \>\atleastone{\meta{case節}})
+\>  \| (c\=ase \meta{式}
+\>       \>\arbno{\meta{case節}}
+\>       \>(else \meta{列}))
+\>  \| (c\=ase \meta{式}
+\>       \>\arbno{\meta{case節}}
+\>       \>(else => \meta{レシピエント}))
+\>  \| (and \arbno{\meta{テスト}})
+\>  \| (or \arbno{\meta{テスト}})
+\>  \| (when \meta{テスト} \meta{列})
+\>  \| (unless \meta{テスト} \meta{列})
+\>  \| (let (\arbno{\meta{束縛仕様}}) \meta{本体})
+\>  \| (let \meta{識別子} (\arbno{\meta{束縛仕様}}) \meta{本体})
+\>  \| (let* (\arbno{\meta{束縛仕様}}) \meta{本体})
+\>  \| (letrec (\arbno{\meta{束縛仕様}}) \meta{本体})
+\>  \| (letrec* (\arbno{\meta{束縛仕様}}) \meta{本体})
+\>  \| (let-values (\arbno{\meta{mv 束縛仕様}}) \meta{本体})
+\>  \| (let*-values (\arbno{\meta{mv 束縛仕様}}) \meta{本体})
+\>  \| (begin \meta{列})
+\>  \| (d\=o \=(\arbno{\meta{繰返し仕様}})
+\>       \>  \>(\meta{テスト} \meta{do結果})
+\>       \>\arbno{\meta{コマンド}})
+\>  \| (delay \meta{式})
+\>  \| (delay-force \meta{式})
+\>  \| (p\=arameterize (\arbno{(\meta{式} \meta{式})})
+\>       \> \meta{本体})
+\>  \| (guard (\meta{識別子} \arbno{\meta{cond節}}) \meta{本体})
+\>  \| \meta{準引用}
+\>  \| (c\=ase-lambda \arbno{\meta{case-lambda節}})
+
+\meta{cond節} \: (\meta{テスト} \meta{列})
+\>   \| (\meta{テスト})
+\>   \| (\meta{テスト} => \meta{レシピエント})
+\meta{レシピエント} \: \meta{式}
+\meta{case節} \: ((\arbno{\meta{データ}}) \meta{列})
+\>   \| ((\arbno{\meta{データ}}) => \meta{レシピエント})
+\meta{束縛仕様} \: (\meta{識別子} \meta{式})
+\meta{mv 束縛仕様} \: (\meta{仮引数部} \meta{式})
+\meta{繰返し仕様} \: (\meta{識別子} \meta{初期値} \meta{ステップ})
+\> \| (\meta{識別子} \meta{初期値})
+\meta{case-lambda節} \: (\meta{仮引数部} \meta{本体})
+\meta{初期値} \: \meta{式}
+\meta{ステップ} \: \meta{式}
+\meta{do結果} \: \meta{列} \| \meta{空}
+
+\meta{マクロ使用} \: (\meta{キーワード} \arbno{\meta{データ}})
+\meta{キーワード} \: \meta{識別子}
+
+\meta{マクロブロック} \:
+\>  (let-syntax (\arbno{\meta{構文仕様}}) \meta{本体})
+\>  \| (letrec-syntax (\arbno{\meta{構文仕様}}) \meta{本体})
+\meta{構文仕様} \: (\meta{キーワード} \meta{変換子仕様})
+
+\meta{インクルーダ} \:
+\> \| (include \atleastone{\meta{文字列}})
+\> \| (include-ci \atleastone{\meta{文字列}})
+\end{grammar}
+
+\subsection{準引用}
+
+準引用式に対する下記の文法は文脈自由ではない。
+これは無限個の生成規則を生み出すためのレシピとして与えられている。
+$D = 1, 2, 3, \ldots$ に対する下記の規則のコピーを想像せよ。
+ここで$D$ は入れ子の深さ (depth) である。
+
+\begin{grammar}%
+\meta{準引用} \: \meta{準引用 1}
+\meta{qqテンプレート 0} \: \meta{式}
+\meta{準引用 $D$} \: `\meta{qqテンプレート $D$}
+\>    \| (quasiquote \meta{qqテンプレート $D$})
+\meta{qqテンプレート $D$} \: \meta{単純データ}
+\>    \| \meta{リストqqテンプレート $D$}
+\>    \| \meta{ベクタqqテンプレート $D$}
+\>    \| \meta{脱引用 $D$}
+\meta{リストqqテンプレート $D$} \:
+\>    \> (\arbno{\meta{qqテンプレートまたは継ぎ合わせ $D$}})
+\>    \| \=(\=\atleastone{\meta{qqテンプレートまたは継ぎ合わせ $D$}}
+\>    \> \> .\ \meta{qqテンプレート $D$})
+\>    \| '\meta{qqテンプレート $D$}
+\>    \| \meta{準引用 $D+1$}
+\meta{ベクタqqテンプレート $D$} \:
+\>    \> \#(\arbno{\meta{qqテンプレートまたは継ぎ合わせ $D$}})
+\meta{脱引用 $D$} \: ,\meta{qqテンプレート $D-1$}
+\>    \| (unquote \meta{qqテンプレート $D-1$})
+\meta{qqテンプレートまたは継ぎ合わせ $D$} \:
+\>    \> \meta{qqテンプレート $D$}
+\>    \| \meta{継ぎ合わせ脱引用 $D$}
+\meta{継ぎ合わせ脱引用 $D$} \: ,@\meta{qqテンプレート $D-1$}
+\>    \| (unquote-splicing \meta{qqテンプレート $D-1$}) %
+\end{grammar}
+
+\meta{準引用} において，\meta{リストqqテンプレート $D$} は
+ときどき \meta{脱引用 $D$} または \meta{継ぎ合わせ脱引用 $D$} と紛らわしい。
+\meta{脱引用 $D$} または \meta{継ぎ合わせ脱引用 $D$} としての解釈が優先される。
+
+\subsection{変換子}
+
+\begin{grammar}%
+\meta{変換子仕様} \:
+\> (syntax-rules (\arbno{\meta{識別子}}) \arbno{\meta{構文規則}})
+\> \| (syntax-rules \meta{識別子} (\arbno{\meta{識別子}})
+\> \> \ \ \arbno{\meta{構文規則}})
+\meta{構文規則} \: (\meta{パターン} \meta{テンプレート})
+\meta{パターン} \: \meta{パターン識別子}
+\>  \| \meta{アンダースコア}
+\>  \| (\arbno{\meta{パターン}})
+\>  \| (\atleastone{\meta{パターン}} . \meta{パターン})
+\>  \| (\arbno{\meta{パターン}} \meta{パターン} \meta{省略符号} \arbno{\meta{パターン}})
+\>  \| (\arbno{\meta{パターン}} \meta{パターン} \meta{省略符号} \arbno{\meta{パターン}}
+\> \> \ \ . \meta{パターン})
+\>  \| \#(\arbno{\meta{パターン}})
+\>  \| \#(\arbno{\meta{パターン}} \meta{パターン} \meta{省略符号} \arbno{\meta{パターン}})
+\>  \| \meta{パターンデータ}
+\meta{パターンデータ} \: \meta{文字列}
+\>  \| \meta{文字}
+\>  \| \meta{ブーリアン}
+\>  \| \meta{数}
+\meta{テンプレート} \: \meta{パターン識別子}
+\>  \| (\arbno{\meta{テンプレート要素}})
+\>  \| (\atleastone{\meta{テンプレート要素}} .\ \meta{テンプレート})
+\>  \| \#(\arbno{\meta{テンプレート要素}})
+\>  \| \meta{テンプレートデータ}
+\meta{テンプレート要素} \: \meta{テンプレート}
+\>  \| \meta{テンプレート} \meta{省略符号}
+\meta{テンプレートデータ} \: \meta{パターンデータ}
+\meta{パターン識別子} \: \meta{{\cf ...} を除く任意の識別子}
+\meta{省略符号} \: \meta{{\cf ...}にデフォルト設定された識別子}
+\meta{アンダースコア} \: \meta{識別子 {\cf \_}}
+\end{grammar}
+
+\subsection{プログラムと定義}
+
+\begin{grammar}%
+\meta{プログラム} \:
+\> \atleastone{\meta{インポート宣言}}
+\> \atleastone{\meta{コマンドまたは定義}}
+\meta{コマンドまたは定義} \: \meta{コマンド}
+\> \| \meta{定義}
+\> \| (begin \atleastone{\meta{コマンドまたは定義}})
+\meta{定義} \: (define \meta{識別子} \meta{式})
+\>   \| (define (\meta{識別子} \meta{def仮引数部}) \meta{本体})
+\>   \| \meta{構文定義}
+\>   \| (define-values \meta{仮引数部} \meta{本体})
+\>   \| (define-record-type \meta{識別子}
+\> \> \ \ \meta{コンストラクタ} \meta{識別子} \arbno{\meta{フィールド仕様}})
+\>   \| (begin \arbno{\meta{定義}})
+\meta{def仮引数部} \: \arbno{\meta{識別子}}
+\>   \| \arbno{\meta{識別子}} .\ \meta{識別子}
+\meta{コンストラクタ} \: (\meta{識別子} \arbno{\meta{フィールド名}})
+\meta{フィールド仕様} \: (\meta{フィールド名} \meta{アクセサ})
+\>   \| (\meta{フィールド名} \meta{アクセサ} \meta{ミューテータ})
+\meta{フィールド名} \: \meta{識別子}
+\meta{アクセサ} \: \meta{識別子}
+\meta{ミューテータ} \: \meta{識別子}
+\meta{構文定義} \:
+\>  (define-syntax \meta{キーワード} \meta{変換子仕様})
+\end{grammar}
+
+\subsection{ライブラリ}
+
+\begin{grammar}%
+\meta{ライブラリ} \:
+\> (d\=efine-library \meta{ライブラリ名}
+\>   \> \arbno{\meta{ライブラリ定義}})
+\meta{ライブラリ名} \: (\atleastone{\meta{ライブラリ名部}})
+\meta{ライブラリ名部} \: \meta{識別子} \| \meta{10進符号なし整数}
+\meta{ライブラリ宣言} \: (export \arbno{\meta{エクスポート仕様}})
+\> \| \meta{インポート宣言}
+\> \| (begin \arbno{\meta{コマンドまたは定義}})
+\> \| \meta{インクルーダ}
+\> \| (include-library-declarations \atleastone{\meta{文字列}})
+\> \| (cond-expand \atleastone{\meta{cond-expand節}})
+\> \| (cond-expand \atleastone{\meta{cond-expand節}}
+\hbox to 1\wd0{\hfill}\ (else \arbno{\meta{ライブラリ宣言}}))
+\meta{import宣言} \: (import \atleastone{\meta{インポート集合}})
+\meta{エクスポート仕様} \: \meta{識別子}
+\> \| (rename \meta{識別子} \meta{識別子})
+\meta{インポート集合} \: \meta{ライブラリ名}
+\> \| (only \meta{インポート集合} \atleastone{\meta{識別子}})
+\> \| (except \meta{インポート集合} \atleastone{\meta{識別子}})
+\> \| (prefix \meta{インポート集合} \meta{識別子})
+\> \| (rename \meta{インポート集合} \atleastone{(\meta{識別子} \meta{識別子})})
+\meta{cond-expand節} \:
+\> (\meta{機能要件} \arbno{\meta{ライブラリ宣言}})
+\meta{機能要件} \: \meta{識別子}
+\> \| \meta{ライブラリ名}
+\> \| (and \arbno{\meta{機能要件}})
+\> \| (or \arbno{\meta{機能要件}})
+\> \| (not \meta{機能要件})
+\end{grammar}

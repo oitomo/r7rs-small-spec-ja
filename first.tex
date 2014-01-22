@@ -1,0 +1,114 @@
+% First page
+
+\thispagestyle{empty}
+
+
+\topnewpage[{
+\begin{center}   {\huge\bf
+	Revised{\Huge$^{\mathbf{7}}$} Report on the Algorithmic Language \\
+			      \vskip 3pt
+				Scheme}
+
+\vskip 1ex
+	[アルゴリズム言語 Scheme 報告書 七訂版]
+\vskip 1ex
+$$
+\begin{tabular}{l@{\extracolsep{.5in}}l@{\extracolsep{.5in}}l}
+\multicolumn{3}{c}{A\authorsc{LEX} S\authorsc{HINN},
+J\authorsc{OHN} C\authorsc{OWAN}, \authorsc{AND}
+A\authorsc{RTHUR} A. G\authorsc{LECKLER} (\textit{Editors})} \\
+\\
+S\authorsc{TEVEN} G\authorsc{ANZ} &
+A\authorsc{LEXEY} R\authorsc{ADUL} &
+O\authorsc{LIN} S\authorsc{HIVERS} \\
+
+A\authorsc{ARON} W. H\authorsc{SU} &
+J\authorsc{EFFREY} T. R\authorsc{EAD} &
+A\authorsc{LARIC} S\authorsc{NELL}-P\authorsc{YM} \\
+
+B\authorsc{RADLEY} L\authorsc{UCIER} &
+D\authorsc{AVID} R\authorsc{USH} &
+G\authorsc{ERALD} J. S\authorsc{USSMAN} \\
+
+E\authorsc{MMANUEL} M\authorsc{EDERNACH} &
+B\authorsc{ENJAMIN} L. R\authorsc{USSEL} &
+\\
+\\
+\multicolumn{3}{c}{R\authorsc{ICHARD} K\authorsc{ELSEY},
+W\authorsc{ILLIAM} C\authorsc{LINGER},
+\authorsc{AND} J\authorsc{ONATHAN} R\authorsc{EES}} \\
+\multicolumn{3}{c}{\textit{(Editors, Revised$^{\mathit{5}}$ Report on the Algorithmic Language Scheme)}} \\
+\\
+\multicolumn{3}{c}{M\authorsc{ICHAEL} S\authorsc{PERBER},
+R. K\authorsc{ENT} D\authorsc{YBVIG}, M\authorsc{ATTHEW} F\authorsc{LATT},
+\authorsc{AND} A\authorsc{NTON} \authorsc{VAN} S\authorsc{TRAATEN}} \\
+\multicolumn{3}{c}{\textit{(Editors, Revised$^{\mathit{6}}$ Report on the Algorithmic Language Scheme)}} \\
+\end{tabular}
+$$
+\vskip 2ex
+{\it John McCarthy と Daniel Weinreb のみたまにささぐ}
+\vskip 2.6ex
+{\large \bf 2013年 7月 6日} \\             % *** DRAFT ***
+{\small 日本語訳 2014年 1月 22日}
+\end{center}
+}]
+
+\clearpage
+
+\chapter*{要約}
+
+本報告書はプログラミング言語 Scheme を定義する一つの記述を与える。
+Scheme は Lisp プログラミング言語~\cite{McCarthy}のうちの，静的スコープをもち，
+かつ真正に末尾再帰的である一方言であり，Guy Lewis Steele~Jr.\ と Gerald
+Jay~Sussman によって発明された。
+Scheme は並外れて明快で単純な意味論をもち，かつ式をつくる方法の
+種類がごく少数になるように設計された。
+命令型，関数型，およびオブジェクト指向型の各スタイルを含む広範囲の
+プログラミングパラダイムが Scheme によって手軽に表現できる。
+
+\vest 序章は本言語と本報告書の歴史を簡潔に述べる。
+
+\vest 最初の三つの章は本言語の基本的なアイディアを提示するとともに，
+本言語を記述するため，および本言語でプログラムを書くために用いられる
+表記上の規約を記述する。
+
+\vest 第\ref{expressionchapter}章と第\ref{programchapter}章は
+式，定義，プログラム，およびライブラリの構文と意味を記述する。
+
+\vest 第\ref{builtinchapter}章は Scheme の組込み手続きを記述する。
+これには本言語のデータ操作と入出力プリミティブのすべてが含まれる。
+
+\vest 第\ref{formalchapter}章は拡張 BNF で書かれた Scheme の形式的構文を，
+形式的な表示的意味論とともに定める。
+本言語の使用の一例が，この形式的な構文と意味論の後に続く。
+
+\vest 付録~\ref{stdlibraries} は標準ライブラリ
+およびそれらが書き出す識別子のリストを提供する。
+
+\vest 付録~\ref{stdfeatures} はオプションだが標準化された
+実装の機能名のリストを提供する。
+
+
+\vest 本報告書の最後は参考文献一覧とアルファベット順の索引である。
+
+\begin{note}
+\rfivers\ および \rsixrs\ の報告書の編集者は，
+本報告書の実質的な部分が \rfivers\ と \rsixrs\ から直接コピーされたものである
+という認識で，本報告書の執筆者として記載されている。
+これらの編集者が，個人的あるいは団体的に，本報告書を支持または不支持することを意図するものではない。
+\end{note}
+
+\todo{expand the summary so that it fills up the column.}
+
+\vfill
+\eject
+
+\chapter*{目次}
+\addvspace{3.5pt}                  % don't shrink this gap
+\renewcommand{\tocshrink}{-3.5pt}  % value determined experimentally
+{\footnotesize
+\tableofcontents
+}
+
+\vfill
+\eject
