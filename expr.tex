@@ -922,7 +922,7 @@ Scheme逐次コンストラクトは両方とも {\cf begin} と名付けられ�
 \subsection{遅延評価}\unsection
 
 \begin{entry}{%
-\proto{delay}{ \hyper{式}}{遅延ライブラリ構文}}
+\proto{delay}{ \hyper{式}}{lazy ライブラリ構文}}
 
 \todo{Fix.}
 
@@ -940,7 +940,7 @@ Scheme逐次コンストラクトは両方とも {\cf begin} と名付けられ�
 \end{entry}
 
 \begin{entry}{%
-\proto{delay-force}{ \hyper{式}}{遅延ライブラリ構文}}
+\proto{delay-force}{ \hyper{式}}{lazy ライブラリ構文}}
 
 \todo{Fix.}
 
@@ -956,7 +956,7 @@ Scheme逐次コンストラクトは両方とも {\cf begin} と名付けられ�
 \end{entry}
 
 \begin{entry}{%
-\proto{force}{ promise}{遅延ライブラリ手続き}}
+\proto{force}{ promise}{lazy ライブラリ手続き}}
 
 {\cf force} 手続きは， \ide{delay}, \ide{delay-force}, または
 \ide{make-promise} で作られた \var{promise} の値を強制する。\index{promise}
@@ -1060,7 +1060,7 @@ p                     \ev  {\it{}a promise, still}
 \end{entry}
 
 \begin{entry}{%
-\proto{promise?} { \var{obj}}{遅延ライブラリ手続き}}
+\proto{promise?} { \var{obj}}{lazy ライブラリ手続き}}
 
 {\cf promise?} 手続きは，
 その引数が約束の場合 \schtrue{} を返し，それ以外の場合 \schfalse{} を返す。
@@ -1069,7 +1069,7 @@ p                     \ev  {\it{}a promise, still}
 \end{entry}
 
 \begin{entry}{%
-\proto{make-promise} { \var{obj}}{遅延ライブラリ手続き}}
+\proto{make-promise} { \var{obj}}{lazy ライブラリ手続き}}
 
 {\cf make-promise} 手続きは，
 強制されたときに \var{obj} を返すような約束を返す。
@@ -1315,7 +1315,7 @@ unquote される要素に入って行くたびに１だけ減る。
 \subsection{case-lambda}\unsection
 \label{caselambdasection}
 \begin{entry}{%
-\proto{case-lambda}{ \hyper{節} \dotsfoo}{case-lambdaライブラリ構文}}
+\proto{case-lambda}{ \hyper{節} \dotsfoo}{case-lambda ライブラリ構文}}
 
 \syntax
 各 \hyper{節} は次の形式である。

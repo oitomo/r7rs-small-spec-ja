@@ -689,7 +689,7 @@ numbers, etc.}
 
 
 \begin{entry}{%
-\proto{finite?}{ \vr{z}}{不正確ライブラリ手続き}}
+\proto{finite?}{ \vr{z}}{inexact ライブラリ手続き}}
 
 {\cf finite?} 手続きは， {\cf +inf.0}, {\cf -inf.0}, および {\cf +nan.0} を除くすべての実数と，
 実部と虚部がどちらも有限である虚数で \schtrue{} を返す。
@@ -703,7 +703,7 @@ numbers, etc.}
 \end{entry}
 
 \begin{entry}{%
-\proto{infinite?}{ \vr{z}}{不正確ライブラリ手続き}}
+\proto{infinite?}{ \vr{z}}{inexact ライブラリ手続き}}
 
 {\cf infinite?} 手続きは，実数 {\cf +inf.0} および {\cf -inf.0} と，
 実部と虚部の一方または両方がで無限である虚数で \schtrue{} を返す。
@@ -718,7 +718,7 @@ numbers, etc.}
 \end{entry}
 
 \begin{entry}{%
-\proto{nan?}{ \vr{z}}{不正確ライブラリ手続き}}
+\proto{nan?}{ \vr{z}}{inexact ライブラリ手続き}}
 
 {\cf nan?} 手続きは，{\cf +nan.0} と，
 実部と虚部の一方または両方が {\cf +nan.0} である虚数で \schtrue{} を返す。
@@ -1032,16 +1032,16 @@ $0 = 0/1$ がすべての有理数のうちで最も単純であることに注�
 \end{entry}
 
 \begin{entry}{%
-\proto{exp}{ \vr{z}}{不正確数ライブラリ手続き}
-\proto{log}{ \vr{z}}{不正確数ライブラリ手続き}
-\rproto{log}{ \vri{z} \vrii{z}}{不正確数ライブラリ手続き}
-\proto{sin}{ \vr{z}}{不正確数ライブラリ手続き}
-\proto{cos}{ \vr{z}}{不正確数ライブラリ手続き}
-\proto{tan}{ \vr{z}}{不正確数ライブラリ手続き}
-\proto{asin}{ \vr{z}}{不正確数ライブラリ手続き}
-\proto{acos}{ \vr{z}}{不正確数ライブラリ手続き}
-\proto{atan}{ \vr{z}}{不正確数ライブラリ手続き}
-\rproto{atan}{ \vr{y} \vr{x}}{不正確数ライブラリ手続き}}
+\proto{exp}{ \vr{z}}{inexact ライブラリ手続き}
+\proto{log}{ \vr{z}}{inexact ライブラリ手続き}
+\rproto{log}{ \vri{z} \vrii{z}}{inexact ライブラリ手続き}
+\proto{sin}{ \vr{z}}{inexact ライブラリ手続き}
+\proto{cos}{ \vr{z}}{inexact ライブラリ手続き}
+\proto{tan}{ \vr{z}}{inexact ライブラリ手続き}
+\proto{asin}{ \vr{z}}{inexact ライブラリ手続き}
+\proto{acos}{ \vr{z}}{inexact ライブラリ手続き}
+\proto{atan}{ \vr{z}}{inexact ライブラリ手続き}
+\rproto{atan}{ \vr{y} \vr{x}}{inexact ライブラリ手続き}}
 
 これらの手続きは，おなじみの超越関数を計算する。
 {\cf log} 手続きは，一引数の場合は \vr{z} の自然対数(常用対数ではない) を，
@@ -1124,7 +1124,7 @@ $\ast$& $y = -0.0$ & $x = 0$    & $-\frac{\pi}{2}$
 \end{entry}
 
 \begin{entry}{%
-\proto{sqrt}{ \vr{z}}{不正確数ライブラリ手続き}}
+\proto{sqrt}{ \vr{z}}{inexact ライブラリ手続き}}
 
 \vr{z} の平方根の主値を返す。
 結果は正の実部をもつか，あるいはゼロの実部と非負の虚部をもつ。
@@ -1164,12 +1164,12 @@ $0^z$ の値は， {\cf (zero? z)} の場合 $1$，{\cf (real-part z)} が
 
 
 \begin{entry}{%
-\proto{make-rectangular}{ \vri{x} \vrii{x}}{複素数ライブラリ手続き}
-\proto{make-polar}{ \vriii{x} \vriv{x}}{複素数ライブラリ手続き}
-\proto{real-part}{ \vr{z}}{複素数ライブラリ手続き}
-\proto{imag-part}{ \vr{z}}{複素数ライブラリ手続き}
-\proto{magnitude}{ \vr{z}}{複素数ライブラリ手続き}
-\proto{angle}{ \vr{z}}{複素数ライブラリ手続き}}
+\proto{make-rectangular}{ \vri{x} \vrii{x}}{complex ライブラリ手続き}
+\proto{make-polar}{ \vriii{x} \vriv{x}}{complex ライブラリ手続き}
+\proto{real-part}{ \vr{z}}{complex ライブラリ手続き}
+\proto{imag-part}{ \vr{z}}{complex ライブラリ手続き}
+\proto{magnitude}{ \vr{z}}{complex ライブラリ手続き}
+\proto{angle}{ \vr{z}}{complex ライブラリ手続き}}
 
 \vri{x}, \vrii{x}, \vriii{x}, および \vriv{x} が実数であり，
 \vr{z} が複素数としたとき，
@@ -1618,8 +1618,8 @@ y                       \ev  (a . 4)
 \end{entry}
 
 \begin{entry}{%
-\proto{caaar}{ pair}{cxrライブラリ手続き}%
-\proto{caadr}{ pair}{cxrライブラリ手続き}%
+\proto{caaar}{ pair}{cxr ライブラリ手続き}%
+\proto{caadr}{ pair}{cxr ライブラリ手続き}%
 \pproto{\hbox to 1\wd0 {\hfil$\vdots$\hfil}}{\hbox to 1\wd1 {\hfil$\vdots$\hfil}}%
 \mainschindex{cadar}\mainschindex{caddr}%
 \mainschindex{cdaar}\mainschindex{cdadr}\mainschindex{cddar}\mainschindex{cdddr}%
@@ -1627,8 +1627,8 @@ y                       \ev  (a . 4)
 \mainschindex{cadaar}\mainschindex{cadadr}\mainschindex{caddar}\mainschindex{cadddr}%
 \mainschindex{cdaaar}\mainschindex{cdaadr}\mainschindex{cdadar}\mainschindex{cdaddr}%
 \mainschindex{cddaar}\mainschindex{cddadr}%
-\proto{cdddar}{ pair}{cxrライブラリ手続き}%
-\proto{cddddr}{ pair}{cxrライブラリ手続き}}
+\proto{cdddar}{ pair}{cxr ライブラリ手続き}%
+\proto{cddddr}{ pair}{cxr ライブラリ手続き}}
 
 これら 24 個の手続きは同じ原理による {\cf car} と {\cf cdr}の更なる合成である。
 例えば， {\cf caddr} は次のように定義できる。
@@ -2087,11 +2087,11 @@ $$
 
 
 \begin{entry}{%
-\proto{char-ci=?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{文字ライブラリ手続き}
-\proto{char-ci<?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{文字ライブラリ手続き}
-\proto{char-ci>?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{文字ライブラリ手続き}
-\proto{char-ci<=?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{文字ライブラリ手続き}
-\proto{char-ci>=?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{文字ライブラリ手続き}}
+\proto{char-ci=?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{char ライブラリ手続き}
+\proto{char-ci<?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{char ライブラリ手続き}
+\proto{char-ci>?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{char ライブラリ手続き}
+\proto{char-ci<=?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{char ライブラリ手続き}
+\proto{char-ci>=?}{ \vri{char} \vrii{char} \vriii{char} \dotsfoo}{char ライブラリ手続き}}
 
 これらの手続きは {\cf char=?}\ 等と同様だが，
 英大文字と英小文字を同じものとして扱う。たとえば，{\cf
@@ -2104,11 +2104,11 @@ $$
 
 
 \begin{entry}{%
-\proto{char-alphabetic?}{ char}{文字ライブラリ手続き}
-\proto{char-numeric?}{ char}{文字ライブラリ手続き}
-\proto{char-whitespace?}{ char}{文字ライブラリ手続き}
-\proto{char-upper-case?}{ letter}{文字ライブラリ手続き}
-\proto{char-lower-case?}{ letter}{文字ライブラリ手続き}}
+\proto{char-alphabetic?}{ char}{char ライブラリ手続き}
+\proto{char-numeric?}{ char}{char ライブラリ手続き}
+\proto{char-whitespace?}{ char}{char ライブラリ手続き}
+\proto{char-upper-case?}{ letter}{char ライブラリ手続き}
+\proto{char-lower-case?}{ letter}{char ライブラリ手続き}}
 
 これらの手続きは，それぞれ，その引数がアルファベット文字，数値文字，空白文字，
 大文字，または小文字ならば \schtrue{} を返し，
@@ -2124,7 +2124,7 @@ Alphabetic, Numeric\_Digit, White\_Space, Uppercase および Lowercase
 
 
 \begin{entry}{%
-\proto{digit-value}{ char}{文字ライブラリ手続き}}
+\proto{digit-value}{ char}{char ライブラリ手続き}}
 
 この手続きは，数字桁の(すなわち，{\cf char-numeric?} が \schtrue{} を返す)
 場合にはその数値(0 から 9)を返し，
@@ -2157,9 +2157,9 @@ Unicode スカラ値に等しい 0 から {\tt \#xD7FF} の間，または
 
 
 \begin{entry}{%
-\proto{char-upcase}{ char}{文字ライブラリ手続き}
-\proto{char-downcase}{ char}{文字ライブラリ手続き}
-\proto{char-foldcase}{ char}{文字ライブラリ手続き}}
+\proto{char-upcase}{ char}{char ライブラリ手続き}
+\proto{char-downcase}{ char}{char ライブラリ手続き}
+\proto{char-foldcase}{ char}{char ライブラリ手続き}}
 
 
 {\cf char-upcase} 手続きは， Unicode のケーシング対　(大文字と小文字のペア) の大文字部分が引数に与えられると，
@@ -2321,7 +2321,7 @@ UTF-8 エンコードされた形式で，このような禁止文字を渡す�
 \end{entry}
 
 \begin{entry}{%
-\proto{string-ci=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{文字ライブラリ手続き}}
+\proto{string-ci=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{char ライブラリ手続き}}
 
 もしも大文字小文字変換の後，すべての文字列が同じ長さであって同じ位置に同じ文字を含んでいる
 ならば \schtrue{} を返し，そうでなければ \schfalse を返す。
@@ -2333,13 +2333,13 @@ UTF-8 エンコードされた形式で，このような禁止文字を渡す�
 
 \begin{entry}{%
 \proto{string<?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{手続き}
-\proto{string-ci<?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{文字ライブラリ手続き}
+\proto{string-ci<?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{char ライブラリ手続き}
 \proto{string>?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{手続き}
-\proto{string-ci>?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{文字ライブラリ手続き}
+\proto{string-ci>?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{char ライブラリ手続き}
 \proto{string<=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{手続き}
-\proto{string-ci<=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{文字ライブラリ手続き}
+\proto{string-ci<=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{char ライブラリ手続き}
 \proto{string>=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{手続き}
-\proto{string-ci>=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{文字ライブラリ手続き}}
+\proto{string-ci>=?}{ \vri{string} \vrii{string} \vriii{string} \dotsfoo}{char ライブラリ手続き}}
 
 これらの手続きは，その引数が (それぞれ) 以下の場合に \schtrue{} を返す:
 単調減少，単調増加，単調非減少，または単調非増加。
@@ -2370,9 +2370,9 @@ UTF-8 エンコードされた形式で，このような禁止文字を渡す�
 \end{entry}
 
 \begin{entry}{%
-\proto{string-upcase}{ string}{文字ライブラリ手続き}
-\proto{string-downcase}{ string}{文字ライブラリ手続き}
-\proto{string-foldcase}{ string}{文字ライブラリ手続き}}
+\proto{string-upcase}{ string}{char ライブラリ手続き}
+\proto{string-downcase}{ string}{char ライブラリ手続き}
+\proto{string-foldcase}{ string}{char ライブラリ手続き}}
 
 
 これらの手続きは，引数に Unicode 文字列全体に大文字化，小文字化，
@@ -3463,7 +3463,7 @@ objが {\cf read} 手続きよって発生したオブジェクト，または
 \section{環境および評価}
 
 \begin{entry}{%
-\proto{environment}{ \vri{list} \dotsfoo}{評価ライブラリ手続き}}
+\proto{environment}{ \vri{list} \dotsfoo}{eval ライブラリ手続き}}
 \label{environments}
 
 この手続きでは，各 \var{list} をインポートセットとして考え，空の環境から開始して
@@ -3473,7 +3473,7 @@ objが {\cf read} 手続きよって発生したオブジェクト，または
 \end{entry}
 
 \begin{entry}{%
-\proto{scheme-report-environment}{ version}{r5rsライブラリ手続き}}
+\proto{scheme-report-environment}{ version}{r5rs ライブラリ手続き}}
 
 \var{version} が {\cf 5} と等しければ，
 \rfivers に従い，{\cf scheme-report-environment} は
@@ -3495,7 +3495,7 @@ objが {\cf read} 手続きよって発生したオブジェクト，または
 \end{entry}
 
 \begin{entry}{%
-\proto{null-environment}{ version}{r5rsライブラリ手続き}}
+\proto{null-environment}{ version}{r5rs ライブラリ手続き}}
 
 \var{version} が {\cf 5} と等しければ，
 \rfivers に従い，{\cf null-environment} 手続きは
@@ -3516,7 +3516,7 @@ objが {\cf read} 手続きよって発生したオブジェクト，または
 \end{entry}
 
 \begin{entry}{%
-\proto{interaction-environment}{}{REPLライブラリ手続き}}
+\proto{interaction-environment}{}{repl ライブラリ手続き}}
 
 この手続きは，実装定義の束縛集合を含む不変環境---一般的には {\cf(scheme base)} によって
 エクスポートされた環境の，あるスーパーセット---の指定子を返す。
@@ -3526,7 +3526,7 @@ objが {\cf read} 手続きよって発生したオブジェクト，または
 \end{entry}
 
 \begin{entry}{%
-\proto{eval}{ expr-or-def environment-specifier}{評価ライブラリ手続き}}
+\proto{eval}{ expr-or-def environment-specifier}{eval ライブラリ手続き}}
 
 \var{expr-or-def} が式である場合は，指定された環境において評価し，その値を返す。
 それが定義である場合は，指定された識別子は，指定された環境において定義され，
@@ -3597,8 +3597,8 @@ Scheme の脱出手続きは無期限の寿命をもつから，
 \end{entry}
 
 \begin{entry}{%
-\proto{call-with-input-file}{ string proc}{ファイルライブラリ手続き}
-\proto{call-with-output-file}{ string proc}{ファイルライブラリ手続き}}
+\proto{call-with-input-file}{ string proc}{file ライブラリ手続き}
+\proto{call-with-output-file}{ string proc}{file ライブラリ手続き}}
 
 \domain{\var{proc} が1個の引数を受け取らなければエラーである。}
 これらの手続きは，
@@ -3644,8 +3644,8 @@ Scheme の脱出手続きは無期限の寿命をもつから，
 
 
 \begin{entry}{%
-\proto{with-input-from-file}{ string thunk}{ファイルライブラリ手続き}
-\proto{with-output-to-file}{ string thunk}{ファイルライブラリ手続き}}
+\proto{with-input-from-file}{ string thunk}{file ライブラリ手続き}
+\proto{with-output-to-file}{ string thunk}{file ライブラリ手続き}}
 
 {\cf open-input-file} または {\cf open-output-file} のように，入力または出力のためにファイルが開かれ，
 {\cf current-input-port} または {\cf current-output-port} で返される
@@ -3662,8 +3662,8 @@ Scheme の脱出手続きは無期限の寿命をもつから，
 
 
 \begin{entry}{%
-\proto{open-input-file}{ string}{ファイルライブラリ手続き}
-\proto{open-binary-input-file}{ string}{ファイルライブラリ手続き}}
+\proto{open-input-file}{ string}{file ライブラリ手続き}
+\proto{open-binary-input-file}{ string}{file ライブラリ手続き}}
  
 既存のファイルの \var{string} をとり，そのファイルからのデータを配送できるテキスト入力ポートまたはバイナリ入力ポートを返す。
 ファイルが存在しないか，開くことができない場合，{\cf file-error?} を満たすエラーが通知される。
@@ -3672,8 +3672,8 @@ Scheme の脱出手続きは無期限の寿命をもつから，
 
 
 \begin{entry}{%
-\proto{open-output-file}{ string}{ファイルライブラリ手続き}
-\proto{open-binary-output-file}{ string}{ファイルライブラリ手続き}}
+\proto{open-output-file}{ string}{file ライブラリ手続き}
+\proto{open-binary-output-file}{ string}{file ライブラリ手続き}}
 
 作成される出力ファイルにつける名前の \var{string} をとり，
 その名前をで新しいファイルにデータを書き込むことが可能なテキスト出力ポートまたはバイナリ出力ポートを返す。
@@ -3769,8 +3769,8 @@ Scheme実装は，ソケットのような，同時に入力と出力である�
 
 
 \begin{entry}{%
-\proto{read}{}{読込ライブラリ手続き}
-\rproto{read}{ port}{読込ライブラリ手続き}}
+\proto{read}{}{read ライブラリ手続き}
+\rproto{read}{ port}{read ライブラリ手続き}}
 
 {\cf read} 手続きは， Scheme オブジェクトの外部表現をオブジェクト自身へと変換する。
 つまり，これは，非終端記号 \meta{データ} に対するパーサ
@@ -3951,8 +3951,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \vspace{-5ex}
 
 \begin{entry}{%
-\proto{write}{ obj}{書込ライブラリ手続き}
-\rproto{write}{ obj port}{書込ライブラリ手続き}}
+\proto{write}{ obj}{write ライブラリ手続き}
+\rproto{write}{ obj port}{write ライブラリ手続き}}
 
 \var{obj} の表現を，与えられたテキスト出力 \var{port} に書く。
 この表記表現の中に現れる文字列は引用符に囲まれ，そして
@@ -3972,8 +3972,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{write-shared}{ obj}{書込ライブラリ手続き}
-\rproto{write-shared}{ obj port}{書込ライブラリ手続き}}
+\proto{write-shared}{ obj}{write ライブラリ手続き}
+\rproto{write-shared}{ obj port}{write ライブラリ手続き}}
 
 {\cf write-shared} 手続きは，
 共有構造が出力に一回以上現れるすべてのペアとベクタがデータラベルを使って表さなければならないこと
@@ -3982,8 +3982,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{write-simple}{ obj}{書込ライブラリ手続き}
-\rproto{write-simple}{ obj port}{書込ライブラリ手続き}}
+\proto{write-simple}{ obj}{write ライブラリ手続き}
+\rproto{write-simple}{ obj port}{write ライブラリ手続き}}
 
 {\cf write-simple} 手続きは，
 共有構造がデータラベルを使って表されることがないという点を除いて， {\cf write} と同じである。
@@ -3993,8 +3993,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 
 
 \begin{entry}{%
-\proto{display}{ obj}{書込ライブラリ手続き}
-\rproto{display}{ obj port}{書込ライブラリ手続き}}
+\proto{display}{ obj}{write ライブラリ手続き}
+\rproto{display}{ obj port}{write ライブラリ手続き}}
 
 \var{obj} の表現を，与えられたテキスト出力 \var{port} に書く。
 表記表現の中に現れる文字列は
@@ -4084,8 +4084,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 
 
 \begin{entry}{%
-\proto{load}{ filename}{ロードライブラリ手続き}
-\rproto{load}{ filename environment-specifier}{ロードライブラリ手続き}}
+\proto{load}{ filename}{load ライブラリ手続き}
+\rproto{load}{ filename environment-specifier}{load ライブラリ手続き}}
 
 \domain{\var{filename} が文字列でない場合はエラーである。}
 実装依存の操作は，\var{filename} をSchemeのソースコードを含む
@@ -4108,7 +4108,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{file-exists?}{ filename}{ファイルライブラリ手続き}}
+\proto{file-exists?}{ filename}{file ライブラリ手続き}}
 
 \domain{\var{filename} が文字列でない場合はエラーである。}
 {\cf file-exists?} 手続きは，
@@ -4118,7 +4118,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{delete-file}{ filename}{ファイルライブラリ手続き}}
+\proto{delete-file}{ filename}{file ライブラリ手続き}}
 
 \domain{\var{filename} が文字列でない場合はエラーである。}
 {\cf delete-file} 手続きは，
@@ -4129,7 +4129,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{command-line}{}{プロセスコンテキストライブラリ手続き}}
+\proto{command-line}{}{process-context ライブラリ手続き}}
 
 文字列のリストとしてプロセスに渡されたコマンドラインを返す。
 最初の文字列はコマンド名に対応し，実装依存である。
@@ -4137,8 +4137,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{exit}{}{プロセスコンテキストライブラリ手続き}
-\rproto{exit}{ obj}{プロセスコンテキストライブラリ手続き}}
+\proto{exit}{}{process-context ライブラリ手続き}
+\rproto{exit}{ obj}{process-context ライブラリ手続き}}
 
 すべての未解決の dynamic-wind \var{after} 手続きを実行し，
 実行中のプログラムを終了し，オペレーティングシステムに終了値を通信する。
@@ -4161,8 +4161,8 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{emergency-exit}{}{プロセスコンテキストライブラリ手続き}
-\rproto{emergency-exit}{ obj}{プロセスコンテキストライブラリ手続き}}
+\proto{emergency-exit}{}{process-context ライブラリ手続き}
+\rproto{emergency-exit}{ obj}{process-context ライブラリ手続き}}
 
 すべての未解決の dynamic-wind \var{after} 手続きを実行せずに
 プログラムを終了し，{\cf exit} と同様にオペレーティングシステムに終了値を通信する。
@@ -4177,7 +4177,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \todo{Shinn: Do we need any description of what an environment variable is?}
 
 \begin{entry}{%
-\proto{get-environment-variable}{ name}{プロセスコンテキストライブラリ手続き}}
+\proto{get-environment-variable}{ name}{process-context ライブラリ手続き}}
 
 多くのオペレーティングシステムは，環境変数 (\defining{environment variables}) で構成される環境 (\defining{environment})
 で実行中の各プロセスを提供する。
@@ -4197,7 +4197,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{get-environment-variables}{}{プロセスコンテキストライブラリ手続き}}
+\proto{get-environment-variables}{}{process-context ライブラリ手続き}}
 
 すべての環境変数の名前と値を連想リストとして返す。
 各エントリの car は環境変数の名前で， cdr は値であり，いずれも文字列である。
@@ -4211,7 +4211,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{current-second}{}{時間ライブラリ手続き}}
+\proto{current-second}{}{time ライブラリ手続き}}
 
 国際原子時(TAI)スケールで，現在時刻を表す不正確数を返す。
 値 0.0 はTAIの1970年1月1日の真夜中を表し(世界時で真夜中の10秒前に相当)，
@@ -4221,7 +4221,7 @@ end-of-file オブジェクトの正確な集合は実装によって異なる�
 \end{entry}
 
 \begin{entry}{%
-\proto{current-jiffy}{}{時間ライブラリ手続き}}
+\proto{current-jiffy}{}{time ライブラリ手続き}}
 
 任意の，実装定義エポックから経過した正確整数として， jiffy 単位の数を返す。
 jiffy は秒の実装定義分数で， {\cf jiffies-per-second} 手続きの戻り値によって定義されている。
@@ -4241,7 +4241,7 @@ jiffy 単位は {\cf current-jiffy} が最小のオーバーヘッドで実行�
 \end{entry}
 
 \begin{entry}{%
-\proto{jiffies-per-second}{}{時間ライブラリ手続き}}
+\proto{jiffies-per-second}{}{time ライブラリ手続き}}
 
 SI秒あたり のjiffy の数を表す正確整数を返す。この値は実装指定の定数である。
 
