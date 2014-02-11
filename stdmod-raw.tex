@@ -12,15 +12,15 @@
 {\cf scheme} ライブラリ接頭辞にはすべての標準ライブラリで使用され，
 将来の規格で使用するために予約されている。
 
-\textbf{基本ライブラリ}
+\textbf{base ライブラリ}
 
-\texttt{(scheme basic)}ライブラリは，
+\texttt{(scheme base)}ライブラリは，
 伝統的に Scheme と関連付けられた多くの手続きと構文束縛をエクスポートする。
-基本ライブラリと他の標準ライブラリの境界は，構造上ではなく，使用上に基づく。
+base ライブラリと他の標準ライブラリの境界は，構造上ではなく，使用上に基づく。
 特に，他の標準手続きまたは構文の点で
 コンパイラや実行システムによって通常プリミティブとして実装されている一部の手段は，
-基本ライブラリの一部としてではなく，分離したライブラリとして定義されている。
-同様に，基本ライブラリの一部のエクスポートは，他のエクスポートの点で実装可能である。
+base ライブラリの一部としてではなく，分離したライブラリとして定義されている。
+同様に， base ライブラリの一部のエクスポートは，他のエクスポートの点で実装可能である。
 それらは厳密な意味で冗長ではあるが，
 使い方の共通パターンを取り込んでいるので，便利な略語として提供されている。
 
@@ -125,7 +125,7 @@
 .write-string             write-u8
 \end{scheme}
 
-\textbf{case-lambdaライブラリ}
+\textbf{case-lambda ライブラリ}
 
 \texttt{(scheme case-lambda)} ライブラリは，
 {\cf case-lambda} 構文をエクスポートする。
@@ -134,7 +134,7 @@
 .case-lambda
 \end{scheme}
 
-\textbf{文字ライブラリ}
+\textbf{char ライブラリ}
 
 \texttt{(scheme char)} ライブラリは，
 すべてのUnicode文字をサポートする場合，潜在的に大きなテーブルを伴う
@@ -153,7 +153,7 @@
 .digit-value
 \end{scheme}
 
-\textbf{複素数ライブラリ}
+\textbf{complex ライブラリ}
 
 \texttt{(scheme complex)} ライブラリは，
 通常非実数のみ有用な手続きをエクスポートする。
@@ -163,7 +163,7 @@
 .make-polar           make-rectangular
 \end{scheme}
 
-\textbf{CxRライブラリ}
+\textbf{CxR ライブラリ}
 
 \texttt{(scheme cxr)} ライブラリは，
 3から4つの {\cf car} と {\cf cdr} 操作の合成からなる
@@ -175,7 +175,7 @@
 \end{scheme}
 
 {\cf car} と {\cf cdr} 自身，およびこれら2つの合成からなる4個の手続きは，
-基本ライブラリに含まれる。\ref{listsection}節参照。
+base ライブラリに含まれる。\ref{listsection}節参照。
 
 \begin{scheme}
 .caaaar caaadr caadar caaddr
@@ -186,7 +186,7 @@
 .cdaar cdadr cddar cdddr
 \end{scheme}
 
-\textbf{評価ライブラリ}
+\textbf{eval ライブラリ}
 
 \texttt{(scheme eval)} ライブラリは，
 プログラムとして Scheme データを評価する手続きをエクスポートする。
@@ -196,7 +196,7 @@
 .environment
 \end{scheme}
 
-\textbf{ファイルライブラリ}
+\textbf{file ライブラリ}
 
 \texttt{(scheme file)} ライブラリは，
 ファイルにアクセスするための手続きを提供する。
@@ -209,7 +209,7 @@
 .with-input-from-file    with-output-to-file
 \end{scheme}
 
-\textbf{不正確ライブラリ}
+\textbf{inexact ライブラリ}
 
 \texttt{(scheme inexact)} ライブラリは，
 通常不正確値のみ有用な手続きをエクスポートする。
@@ -221,7 +221,7 @@
 .sin       sqrt tan
 \end{scheme}
 
-\textbf{遅延ライブラリ}
+\textbf{lazy ライブラリ}
 
 \texttt{(scheme lazy)} ライブラリは，
 遅延評価のための手続きと構文キーワードをエクスポートする。
@@ -230,7 +230,7 @@
 .delay   delay-force   force   make-promise   promise?
 \end{scheme}
 
-\textbf{ロードライブラリ}
+\textbf{load ライブラリ}
 
 \texttt{(scheme load)} ライブラリは，
 Scheme 式をファイルからロードする手続きをエクスポートする。
@@ -239,7 +239,7 @@ Scheme 式をファイルからロードする手続きをエクスポートす�
 .load
 \end{scheme}
 
-\textbf{プロセスコンテキストライブラリ}
+\textbf{process-context ライブラリ}
 
 \texttt{(scheme process-context)} ライブラリは，
 プログラムの呼び出しコンテキストにアクセスする手続きをエクスポートする。
@@ -252,7 +252,7 @@ Scheme 式をファイルからロードする手続きをエクスポートす�
 .exit
 \end{scheme}
 
-\textbf{読み込みライブラリ}
+\textbf{read ライブラリ}
 
 \texttt{(scheme read)} ライブラリは，
 Scheme オブジェクトを読み込むための手続きを提供する。
@@ -261,7 +261,7 @@ Scheme オブジェクトを読み込むための手続きを提供する。
 .read
 \end{scheme}
 
-\textbf{REPLライブラリ}
+\textbf{REPL ライブラリ}
 
 \texttt{(scheme repl)} ライブラリは，
 {\cf interaction-environment} 手続きをエクスポートする。
@@ -270,7 +270,7 @@ Scheme オブジェクトを読み込むための手続きを提供する。
 .interaction-environment
 \end{scheme}
 
-\textbf{時間ライブラリ}
+\textbf{time ライブラリ}
 
 \texttt{(scheme time)} ライブラリは，
 時間に関連した値へのアクセスを提供する。
@@ -281,7 +281,7 @@ Scheme オブジェクトを読み込むための手続きを提供する。
 .jiffies-per-second
 \end{scheme}
 
-\textbf{書き込みライブラリ}
+\textbf{write ライブラリ}
 
 \texttt{(scheme write)} ライブラリは，
 Scheme オブジェクトを書き込むための手続きを提供する。
@@ -290,7 +290,7 @@ Scheme オブジェクトを書き込むための手続きを提供する。
 .write  write-shared write-simple  display
 \end{scheme}
 
-\textbf{R5RSライブラリ}
+\textbf{R5RS ライブラリ}
 
 \texttt{(scheme r5rs)} ライブラリは，
 {\cf transcript-on} と {\cf transcript-off} が存在しないことを除いて，
