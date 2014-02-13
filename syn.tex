@@ -82,7 +82,8 @@ Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Pd, Pc, Po, Sc, Sm, Sk, So,
 非文法的であることに注意せよ。
 
 \begin{grammar}%
-\meta{アトモスフィア} \: \meta{空白} \| \meta{注釈} \| \meta{ディレクティブ}
+\meta{アトモスフィア} \: \meta{空白} \| \meta{注釈}
+\> \| \meta{ディレクティブ}
 \meta{トークン間スペース} \: \arbno{\meta{アトモスフィア}}%
 \end{grammar}
 
@@ -122,15 +123,16 @@ Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Pd, Pc, Po, Sc, Sm, Sk, So,
 \meta{符号後続文字} \: \meta{頭文字} \| \meta{明示的符号} \| @
 \meta{記号要素} \:
  \> \meta{any character other than \meta{縦線} or \backwhack}
- \> \| \meta{インライン16進エスケープ} \| \meta{ニモニックエスケープ} \| \backwhack{}|
+ \> \| \meta{インライン16進エスケープ}
+ \> \| \meta{ニモニックエスケープ} \| \backwhack{}|
 
 \meta{ブーリアン} \: \schtrue{} \| \schfalse{} \| \sharptrue{} \| \sharpfalse{}
 \label{charactersyntax}
 \meta{文字} \: \#\backwhack{} \meta{任意の文字}
  \>  \| \#\backwhack{} \meta{文字名}
  \>  \| \#\backwhack{}x\meta{16進スカラ値}
-\meta{文字名} \: alarm \| backspace \| delete 
-\> \| escape \| newline \| null \| return \| space \| tab
+\meta{文字名} \: alarm \| backspace \| delete \| escape
+\> \| newline \| null \| return \| space \| tab
 \todo{Explain what happens in the ambiguous case.}
 \meta{文字列} \: " \arbno{\meta{文字列要素}} "
 \meta{文字列要素} \: \meta{\doublequote{} と \backwhack を除く任意の文字}
@@ -161,13 +163,13 @@ Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Pd, Pc, Po, Sc, Sm, Sk, So,
 \begin{grammar}%
 \meta{$R$進数} \: \meta{$R$進接頭辞} \meta{$R$進複素数}
 \meta{$R$進複素数} \: %
-         \meta{$R$進実数} %
-      \| \meta{$R$進実数} @ \meta{$R$進実数}
-   \> \| \meta{$R$進実数} + \meta{$R$進符号なし実数} i %
-      \| \meta{$R$進実数} - \meta{$R$進符号なし実数} i
+         \meta{$R$進実数}
+   \> \| \meta{$R$進実数} @ \meta{$R$進実数}
+   \> \| \meta{$R$進実数} + \meta{$R$進符号なし実数} i
+   \> \| \meta{$R$進実数} - \meta{$R$進符号なし実数} i
    \> \| \meta{$R$進実数} + i %
-      \| \meta{$R$進実数} - i %
-      \| \meta{$R$進実数} \meta{無限大および無効値} i 
+      \| \meta{$R$進実数} - i
+   \> \| \meta{$R$進実数} \meta{無限大および無効値} i 
    \> \| + \meta{$R$進符号なし実数} i %
       \| - \meta{$R$進符号なし実数} i
    \> \| \meta{無限大および無効値} i %
@@ -187,7 +189,8 @@ Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Pd, Pc, Po, Sc, Sm, Sk, So,
 \meta{$R$進接頭辞} \: %
          \meta{$R$進基数接頭辞} \meta{正確性接頭辞}
    \> \| \meta{正確性接頭辞} \meta{$R$進基数接頭辞}
-\meta{無限大および無効値} \: +inf.0 \| -inf.0 \| +nan.0 \| -nan.0
+\meta{無限大および無効値} \: +inf.0 \| -inf.0 \| +nan.0
+   \> \| -nan.0
 \end{grammar}
 
 \begin{grammar}%
@@ -249,8 +252,8 @@ Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Pd, Pc, Po, Sc, Sm, Sk, So,
 \>  \| \meta{インクルーダ}
 
 \meta{リテラル} \: \meta{引用} \| \meta{自己評価的データ}
-\meta{自己評価的データ} \: \meta{ブーリアン} \| \meta{数} \| \meta{ベクタ}
-\>  \| \meta{文字} \| \meta{文字列} \| \meta{バイトベクタ}
+\meta{自己評価的データ} \: \meta{ブーリアン} \| \meta{数}
+\>  \| \meta{ベクタ} \| \meta{文字} \| \meta{文字列} \| \meta{バイトベクタ}
 \meta{引用} \: '\meta{データ} \| (quote \meta{データ})
 \meta{手続き呼出し} \: (\meta{演算子} \arbno{\meta{オペランド}})
 \meta{演算子} \: \meta{式}
