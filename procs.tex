@@ -2289,7 +2289,7 @@ UTF-8 エンコードされた形式で，このような禁止文字を渡す�
 \domain{\vr{k} が \var{string} の妥当な添字でなければエラーである。}
 {\cf string-ref} 手続きは \var{string} の，ゼロから数えて第 \vr{k} の文字を返す。
 \end{entry}
-一定時間で実行するための，この手続きへの要件はない。
+この手続きは定数時間で実行できる必要はない。
 
 
 \begin{entry}{%
@@ -2297,7 +2297,7 @@ UTF-8 エンコードされた形式で，このような禁止文字を渡す�
 
 \domain{\vr{k} が \var{string} の妥当な添字でなければエラーである。}
 {\cf string-set!} は \var{string} の要素 \vr{k} に \var{char} を格納する。
-一定時間で実行するための，この手続きへの要件はない。
+この手続きは定数時間で実行できる必要はない。
 
 \begin{scheme}
 (define (f) (make-string 3 \sharpsign\backwhack{}*))
